@@ -28,134 +28,107 @@
       color: #666;
       margin-bottom: 20px;
     }
-    
-#game-container {
+
+    /* กรอบเกมขยายเป็น 16:9 (640x360) */
+    #game-container {
       position: relative;
       border: 3px solid #333;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
       background: #000;
-      width: 640px;          /* ขยายความกว้างเป็น 640px */
-      height: 360px;         /* ปรับความสูงเป็น 360px (อัตราส่วน 16:9) */
+      width: 640px;
+      height: 360px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
 
-    /* หัวข้อบอกผู้พูด */
+    /* กล่องข้อความทรงสี่เหลี่ยมผืนผ้าแนวยาวชิดด้านล่าง */
+    #story-screen {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      height: 110px;
+      background: rgba(10, 10, 15, 0.95);
+      border: 2px solid #ff3333;
+      border-radius: 4px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 10;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.25);
+    }
+
     .speaker-name {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #ff4444;
       border-bottom: 1px solid #333;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
-      min-height: 28px;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
     }
-    
-    /* ข้อความบทสนทนา */
-    .dialogue-box {
+
+    .dialog-text {
       font-size: 0.95rem;
-      line-height: 1.7;
-      color: #d1d1d1;
+      color: #dddddd;
+      line-height: 1.4;
       flex-grow: 1;
-      white-space: pre-line;
-      text-shadow: 0 0 4px rgba(255, 255, 255, 0.15);
     }
 
-    /* ปุ่มกดอ่านต่อ */
-    .press-prompt {
-      font-size: 0.75rem;
-      color: #888;
-      text-align: right;
-      animation: blink 1s infinite;
-      margin-top: 10px;
-    }
-    
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.2; }
-    }
-
-    .controls-hint {
-      margin-top: 15px;
+    .next-btn {
+      align-self: flex-end;
+      background: transparent;
+      border: 1px solid #ff3333;
+      color: #ff3333;
+      padding: 3px 12px;
+      font-family: inherit;
       font-size: 0.8rem;
-      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .next-btn:hover {
+      background: #ff3333;
+      color: #000;
     }
   </style>
 </head>
 <body>
 
-  <h1>祈り場 (INORIBA)</h1>
-  <div class="subtitle">Prologue: The Argument</div>
+  <h1>祈り場 (Inoriba)</h1>
+  <div class="subtitle">Hack Club Stardance Project</div>
 
   <div id="game-container">
-    <div class="speaker-name" id="speakerName">...</div>
-    <div class="dialogue-box" id="dialogueText">กำลังโหลดบทสนทนา...</div>
-    <div class="press-prompt" id="promptText">กด [ SPACEBAR / ENTER ] เพื่ออ่านต่อ ▶</div>
-  </div>
-
-  <div class="controls-hint">
-    กด <b>SPACEBAR</b> หรือ <b>ENTER</b> เพื่อดำเนินบทสนทนา
+    <div id="story-screen">
+      <div class="speaker-name" id="speaker">???</div>
+      <div class="dialog-text" id="text">...ฝนตกหนักข้างนอก เสียงวิทยุเริ่มส่งเสียงซ่า...</div>
+      <button class="next-btn" onclick="nextText()">กดเพื่อไปต่อ ▶</button>
+    </div>
   </div>
 
   <script>
-    // บทสนทนาที่ได้รับจากคุณ
-    const dialogues = [
-      { speaker: "Atsushi", text: "นี้ก็ 2 สัปดาห์แล้วนะที่ตำรวจยังไม่เจอเบาะแส Riko เลย" },
-      { speaker: "Kana", text: "ป่านนี้ลูกเราจะเป็นยังไงบ้างก็ไม่รู้... ตำรวจห่วยแตกสิ้นดี เงินภาษีที่เราจ่ายให้กับอะไรเนี่ย!" },
-      { speaker: "Atsushi", text: "ใจเย็นคุณ ตำรวจเขาก็ทำงานหนักนะ ลูกเราคงยังปลอดภัยอยู่ ผมเชื่อแบบนั้น" },
-      { speaker: "Kana", text: "ฉันก็หวังแบบนั้นล่ะ! แต่คุณไม่คิดจะกังวลใจบ้างเลยหรอ มันนานมากเลยนะที่ยังไม่เจออะไร" },
-      { speaker: "Atsushi", text: "ผมก็กังวลเหมือนคุณนั่นล่ะ แต่เราไม่สามารถทำอะไรได้เลยนะ..." },
-      { speaker: "Kana", text: "ไม่สามารถทำอะไรได้? หรือคุณไม่คิดจะทำ?!" },
-      { speaker: "Atsushi", text: "..." },
-      { speaker: "Kana", text: "คุณนี้น่าผิดหวังจริงๆ" },
-      { speaker: "Atsushi", text: "ผมขอโทษ... งั้นผมจะเป็นคนไปหาเบาะแสเอง" },
-      { speaker: "Kana", text: "คนอย่างคุณจะไปทำอะไรได้ อยากทำอะไรก็เชิญ!" },
-      { speaker: "Atsushi", text: "ขอโทษนะ..." },
-      { speaker: "System", text: "[ จบบทนำ - Atsushi ตัดสินใจก้าวออกจากบ้านเพียงลำพัง ]" }
+    const dialogs = [
+      { speaker: "บรรยาย", text: "...ฝนตกหนักข้างนอก เสียงวิทยุเริ่มส่งเสียงซ่า..." },
+      { speaker: "ตำรวจ", text: "ทางเรากำลังพยายามอย่างเต็มที่ครับ ขอให้คุณกลับไปรอฟังข่าวที่บ้านก่อน..." },
+      { speaker: "พ่อ/แม่", text: "ทำงานช้าเกินไปแล้ว... ลูกฉันหายไปทั้งคนนะ!" },
+      { speaker: "พ่อ/แม่", text: "ถ้าพวกคุณไม่ช่วย... ฉันจะออกตามหาเอง" }
     ];
 
     let currentIndex = 0;
 
-    const speakerNameEl = document.getElementById('speakerName');
-    const dialogueTextEl = document.getElementById('dialogueText');
-    const promptTextEl = document.getElementById('promptText');
-
-    function updateDialogue() {
-      const current = dialogues[currentIndex];
-      
-      // กำหนดสีชื่อตัวละครให้ต่างกันเพื่อความชัดเจน
-      if (current.speaker === "Atsushi") {
-        speakerNameEl.style.color = "#4a90e2"; // สีฟ้า
-        speakerNameEl.innerText = "Atsushi (อัทสึชิ)";
-      } else if (current.speaker === "Kana") {
-        speakerNameEl.style.color = "#ff4444"; // สีแดง
-        speakerNameEl.innerText = "Kana (คานะ)";
+    function nextText() {
+      currentIndex++;
+      if (currentIndex < dialogs.length) {
+        document.getElementById("speaker").innerText = dialogs[currentIndex].speaker;
+        document.getElementById("text").innerText = dialogs[currentIndex].text;
       } else {
-        speakerNameEl.style.color = "#888888"; // สีเทา
-        speakerNameEl.innerText = current.speaker;
-      }
-
-      dialogueTextEl.innerText = current.text;
-
-      if (currentIndex === dialogues.length - 1) {
-        promptTextEl.innerText = "▶ [ END OF DEMO ]";
+        document.getElementById("speaker").innerText = "ระบบ";
+        document.getElementById("text").innerText = "จบฉากนำเรื่อง (Prologue)";
       }
     }
-
-    // เริ่มต้นแสดงผลข้อความแรก
-    updateDialogue();
-
-    // ระบบกดปุ่มอ่านบทถัดไป
-    window.addEventListener('keydown', (e) => {
-      if (e.code === "Space" || e.code === "Enter") {
-        if (currentIndex < dialogues.length - 1) {
-          currentIndex++;
-          updateDialogue();
-        }
-      }
-    });
   </script>
 </body>
 </html>
