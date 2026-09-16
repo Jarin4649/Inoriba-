@@ -41,21 +41,26 @@
   overflow: hidden;
 }
 
-/* จัดวางตัวละครชิดขวา ติดขอบล่าง */
+/* จัดวางฝั่งขวา ชิดขอบล่าง */
     #character-container {
       position: absolute;
       bottom: 0;
-      right: 5%; /* ห่างจากขอบขวานิดหน่อยกำลังสวย */
+      right: -30px; /* ขยับชิดขวาเพิ่มขึ้นอีกนิด (ถ้ายังอยากให้ขวาอีก ปรับเป็น -50px ได้ครับ) */
+      width: 650px; /* เพิ่มความกว้างกล่องเพื่อรองรับขนาดตัวละครที่ใหญ่ขึ้น */
+      height: 85vh; /* ขยายความสูงขึ้นเป็น 85% ของหน้าจอ (ขยายตัวใหญ่ขึ้น) */
       z-index: 5;
       pointer-events: none;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
     }
 
     /* ปรับขนาดตัวละคร */
     .character {
-      height: 65vh; /* ความสูง 65% ของหน้าจอ */
-      max-height: 480px;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      display: block;
+      object-position: bottom right;
       transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
       filter: brightness(35%);
       opacity: 0.5;
