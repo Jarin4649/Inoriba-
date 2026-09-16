@@ -17,7 +17,7 @@
       overflow: hidden; /* ปิด Scrollbar ไม่ให้เลื่อนขึ้นลงได้ */
     }
 
-    /* กรอบหน้าจอเกม ยึดตามขนาดหน้าจอคอมพิวเตอร์พอดี */
+ /* กรอบหน้าจอเกม ยึดตามขนาดหน้าจอคอมพิวเตอร์พอดี */
     #game-container {
       position: relative;
       width: 100vw;
@@ -25,21 +25,18 @@
       background: #050508;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end; /* <--- จุดสำคัญ: ดันลงข้างล่าง */
+      justify-content: flex-end;
       align-items: center;
       padding: 20px;
-    
-
-    /* ดึงรูปจากโฟลเดอร์ images */
+      /* ดึงรูปจากโฟลเดอร์ Images */
       background-image: url('Images/House1.png');
-    /* ตั้งค่าให้ภาพขยายเต็มจอพอดี ไม่ซ้ำ */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  
-  /* กันสโครลบาร์โผล่ */
-  overflow: hidden;
-  }
+      /* ตั้งค่าให้ภาพขยายเต็มจอพอดี ไม่ซ้ำ */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      /* กันสโครลบาร์โผล่ */
+      overflow: hidden;
+    }
       
    /* จัดวางฝั่งขวา ชิดขอบล่าง และดันให้ชิดขอบจอมากขึ้น */
     #character-container {
