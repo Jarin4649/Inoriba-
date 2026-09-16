@@ -145,7 +145,7 @@
 
   <script>
     const dialogs = [
-      { speaker: "Atsushi", text: "It's been two weeks now, and the police still haven't found any trace of Riko." },
+      { speaker: "Atsushi", text: "It's been two weeks now, and the police still haven't found any trace of Riko.", image: "Characters/Atsushi speak.png" },
       { speaker: "Kana", text: "I wonder how our daughter is doing right now... The police are utterly useless. What on earth are our tax ｍoney even paying for?" },
       { speaker: "Atsushi", text: "Calm down, honey. The police are doing everything they can. I'm sure our daughter is still safe... I really believe that." },
       { speaker: "Kana", text: "I hope you're right. But how can you stay so calm? It's been way too long, and there's still zero progress." },
@@ -168,8 +168,14 @@ let currentIndex = 0;
         document.getElementById("speaker").innerText = currentDialog.speaker;
         document.getElementById("text").innerText = currentDialog.text;
 
-        // ไฮไลต์ Atsushi เมื่อเป็นคนพูด และทำให้มืดลงเมื่อ Kana พูด
         const atsushiImg = document.getElementById("char-atsushi");
+
+        // 1. สลับรูปภาพของ Atsushi ตามที่ตั้งไว้ในบทพูด
+        if (currentDialog.image) {
+          atsushiImg.src = currentDialog.image;
+        }
+
+        // 2. ไฮไลต์สว่างเมื่อ Atsushi พูด และปรับมืดลงเมื่อ Kana พูด
         if (currentDialog.speaker === "Atsushi") {
           atsushiImg.classList.add("active");
         } else {
