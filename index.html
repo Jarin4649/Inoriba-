@@ -115,45 +115,6 @@
 
   <script>
     const dialogs = [
-      { speaker: "Atsushi", text: "นี้ก็ 2 สัปดาห์แล้วนะที่ตำรวจยังไม่เจอเบาะแส Riko เลย" },
-      { speaker: "Kana", text: "ป่านนี้ลูกเราจะเป็นยังไงบ้างก็ไม่รู้... ตำรวจห่วยแตกสิ้นดี เงินภาษีที่เราจ่ายให้กับอะไรเนี่ย!" },
-      { speaker: "Atsushi", text: "ใจเย็นคุณ ตำรวจเขาก็ทำงานหนักนะ ลูกเราคงยังปลอดภัยอยู่ ผมเชื่อแบบนั้น" },
-      { speaker: "Kana", text: "ฉันก็หวังแบบนั้นล่ะ! แต่คุณไม่คิดจะกังวลใจบ้างเลยหรอ มันนานมากเลยนะที่ยังไม่เจออะไร" },
-      { speaker: "Atsushi", text: "ผมก็กังวลเหมือนคุณนั่นล่ะ แต่เราไม่สามารถทำอะไรได้เลยนะ..." },
-      { speaker: "Kana", text: "ไม่สามารถทำอะไรได้? หรือคุณไม่คิดจะทำ?!" },
-      { speaker: "Atsushi", text: "..." },
-      { speaker: "Kana", text: "คุณนี้น่าผิดหวังจริงๆ" },
-      { speaker: "Atsushi", text: "ผมขอโทษ... งั้นผมจะเป็นคนไปหาเบาะแสเอง" },
-      { speaker: "Kana", text: "คนอย่างคุณจะไปทำอะไรได้ อยากทำอะไรก็เชิญ!" },
-      { speaker: "Atsushi", text: "ขอโทษนะ..." },
-      { speaker: "System", text: "[ จบบทนำ - Atsushi ตัดสินใจก้าวออกจากบ้านเพียงลำพัง ]" }
-    ];
-
-    let currentIndex = 0;
-
-    function nextText() {
-      if (currentIndex < dialogs.length - 1) {
-        currentIndex++;
-        document.getElementById("speaker").innerText = dialogs[currentIndex].speaker;
-        document.getElementById("text").innerText = dialogs[currentIndex].text;
-      }
-    }
-  </script>
-</body>
-</html>
-
-  <h1>祈り場 (Inoriba)</h1>
-  <div class="subtitle">Hack Club Stardance Project</div>
-
-  <div id="game-container">
-    <div id="story-screen">
-      <div class="speaker-name" id="speaker">???</div>
-      <button class="next-btn" onclick="nextText()">กดเพื่อไปต่อ ▶</button>
-    </div>
-  </div>
-
-  <script>
-    const dialogs = [
       { speaker: "Atsushi", text: "It's been two weeks now, and the police still haven't found any trace of Riko." },
       { speaker: "Kana", text: "I wonder how our daughter is doing right now... The police are utterly useless. What on earth are our tax ｍoney even paying for?" },
       { speaker: "Atsushi", text: "Calm down, honey. The police are doing everything they can. I'm sure our daughter is still safe... I really believe that." },
@@ -170,13 +131,10 @@
     let currentIndex = 0;
 
     function nextText() {
-      currentIndex++;
-      if (currentIndex < dialogs.length) {
+      if (currentIndex < dialogs.length - 1) {
+        currentIndex++;
         document.getElementById("speaker").innerText = dialogs[currentIndex].speaker;
         document.getElementById("text").innerText = dialogs[currentIndex].text;
-      } else {
-        document.getElementById("speaker").innerText = "ระบบ";
-        document.getElementById("text").innerText = "จบฉากนำเรื่อง (Prologue)";
       }
     }
   </script>
