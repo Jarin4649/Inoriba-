@@ -147,15 +147,15 @@
     const dialogs = [
       { speaker: "Atsushi", text: "It's been two weeks now, and the police still haven't found any trace of Riko.", image: "Characters/Atsushi speak.png" },
       { speaker: "Kana", text: "I wonder how our daughter is doing right now... The police are utterly useless. What on earth are our tax ｍoney even paying for?" },
-      { speaker: "Atsushi", text: "Calm down, honey. The police are doing everything they can. I'm sure our daughter is still safe... I really believe that." },
-      { speaker: "Kana", text: "I hope you're right. But how can you stay so calm? It's been way too long, and there's still zero progress." },
-      { speaker: "Atsushi", text: "I'm just as worried as you are... but there's literally nothing we can do." },
+      { speaker: "Atsushi", text: "Calm down, honey. The police are doing everything they can. I'm sure our daughter is still safe... I really believe that.", image: "Characters/Atsushi speak.png" },
+      { speaker: "Kana", text: "I hope you're right. But how can you stay so calm? It's been way too long, and there's still zero progress.", image: "Characters/Atsushi speak.png" },
+      { speaker: "Atsushi", text: "I'm just as worried as you are... but there's literally nothing we can do.", image: "Characters/Atsushi speak.png" },
       { speaker: "Kana", text: "Can't do anything? Or are you just refusing to do something about it?" },
-      { speaker: "Atsushi", text: "..." },
+      { speaker: "Atsushi", text: "...", image: "Characters/Atsushi Q (1).png" },
       { speaker: "Kana", text: "God, you're so damn pathetic" },
-      { speaker: "Atsushi", text: "I'm sorry. Fine... then I'll look for clues myself." },
+      { speaker: "Atsushi", text: "I'm sorry. Fine... then I'll look for clues myself.", image: "Characters/Atsushi speak.png" },
       { speaker: "Kana", text: "What can someone like you even do? Do whatever you want." },
-      { speaker: "Atsushi", text: "Sorry..." },
+      { speaker: "Atsushi", text: "Sorry...", image: "Characters/Atsushi Sorry.png" },
     ];
 
 let currentIndex = 0;
@@ -170,16 +170,15 @@ let currentIndex = 0;
 
         const atsushiImg = document.getElementById("char-atsushi");
 
-        // 1. สลับรูปภาพของ Atsushi ตามที่ตั้งไว้ในบทพูด
-        if (currentDialog.image) {
-          atsushiImg.src = currentDialog.image;
-        }
-
-        // 2. ไฮไลต์สว่างเมื่อ Atsushi พูด และปรับมืดลงเมื่อ Kana พูด
+        // --- ส่วนที่แก้ไขการสลับท่าทาง ---
         if (currentDialog.speaker === "Atsushi") {
-          atsushiImg.classList.add("active");
+          atsushiImg.classList.add("active"); // สว่างขึ้น
+          // ใช้รูปท่าพูดตามที่ตั้งไว้ในประโยคนั้นๆ
+          atsushiImg.src = currentDialog.image; 
         } else {
-          atsushiImg.classList.remove("active");
+          atsushiImg.classList.remove("active"); // มืดลง
+          // ตอนไม่ได้พูด ให้เปลี่ยนเป็นรูปท่าฟังเงียบๆ (ใส่ชื่อไฟล์รูปตอนฟังที่นี่)
+          atsushiImg.src = "Characters/Atsushi Q (1).png"; 
         }
       }
 
