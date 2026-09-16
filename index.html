@@ -41,22 +41,26 @@
   overflow: hidden;
 }
 
-/* วางตัวละครไว้ฝั่งขวา ติดขอบล่าง */
+/* วางกล่องรูปตัวละคร ล็อกไว้มุมขวาล่าง ดันให้ไปอยู่ฝั่งขวาสุด */
     #character-container {
       position: absolute;
       bottom: 0;
-      right: 5%;
+      right: -10%; /* ดันขยับไปทางขวาเพิ่ม เพื่อแก้ปัญหารูปติดขอบใส */
+      width: 450px; /* จำกัดความกว้างกล่อง */
+      height: 70vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
       z-index: 5;
       pointer-events: none;
-      display: flex;
-      align-items: flex-end;
     }
 
-    /* ปรับขนาดตัวละครให้ย่อลงติดคอขอบล่างพอดี */
+    /* ปรับขนาดตัวละครให้ย่อลงติดขอบล่าง */
     .character {
-      height: 60vh;
-      max-height: 450px;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
+      object-position: bottom center;
       transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
       filter: brightness(35%);
       opacity: 0.5;
@@ -65,8 +69,9 @@
     .character.active {
       filter: brightness(100%);
       opacity: 1;
-      transform: scale(1.02);
+      transform: scale(1.03);
     }
+    
     /* กล่องข้อความสไตล์ Visual Novel (กว้างกำลังสวย 800px วางอยู่กึ่งกลางด้านล่าง) */
 #story-screen {
   position: absolute; /* บังคับลอยตำแหน่ง */
