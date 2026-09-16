@@ -7,8 +7,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     html, body {
-      width: 100%;
-      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
       background-color: #050508;
       color: #e0e0e0;
       font-family: 'Courier New', Courier, monospace;
@@ -30,10 +32,14 @@
 
     /* ดึงรูปจากโฟลเดอร์ images */
       background-image: url('Images/House1.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
+    /* ตั้งค่าให้ภาพขยายเต็มจอพอดี ไม่ซ้ำ */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* กันสโครลบาร์โผล่ */
+  overflow: hidden;
+}
     
     /* กล่องข้อความสไตล์ Visual Novel (กว้างกำลังสวย 800px วางอยู่กึ่งกลางด้านล่าง) */
 #story-screen {
