@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inoriba (祈り場) - Prologue</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #050505;
+      color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      color: #ff3333;
+      margin-bottom: 5px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    /* หน้าจอเกมสไตล์ Nanashi no Game */
+    #game-container {
+      position: relative;
+      border: 3px solid #333;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.95);
+      background: #08080c;
+      width: 420px;
+      height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 25px;
+      overflow: hidden;
+    }
+
+    /* หัวข้อบอกผู้พูด */
+    .speaker-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #ff4444;
+      border-bottom: 1px solid #333;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+      min-height: 28px;
+    }
+    
+    /* ข้อความบทสนทนา */
+    .dialogue-box {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #d1d1d1;
+      flex-grow: 1;
+      white-space: pre-line;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.15);
+    }
+
+    /* ปุ่มกดอ่านต่อ */
+    .press-prompt {
+      font-size: 0.75rem;
+      color: #888;
+      text-align: right;
+      animation: blink 1s infinite;
+      margin-top: 10px;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .controls-hint {
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>祈り場 (INORIBA)</h1>
+  <div class="subtitle">Prologue: The Argument</div>
+
+  <div id="game-container">
+    <div class="speaker-name" id="speakerName">...</div>
+    <div class="dialogue-box" id="dialogueText">กำลังโหลดบทสนทนา...</div>
+    <div class="press-prompt" id="promptText">กด [ SPACEBAR / ENTER ] เพื่ออ่านต่อ ▶</div>
+  </div>
+
+  <div class="controls-hint">
+    กด <b>SPACEBAR</b> หรือ <b>ENTER</b> เพื่อดำเนินบทสนทนา
+  </div>
+
+  <script>
+    // บทสนทนาที่ได้รับจากคุณ
+    const dialogues = [
+      { speaker: "Atsushi", text: "นี้ก็ 2 สัปดาห์แล้วนะที่ตำรวจยังไม่เจอเบาะแส Riko เลย" },
+      { speaker: "Kana", text: "ป่านนี้ลูกเราจะเป็นยังไงบ้างก็ไม่รู้... ตำรวจห่วยแตกสิ้นดี เงินภาษีที่เราจ่ายให้กับอะไรเนี่ย!" },
+      { speaker: "Atsushi", text: "ใจเย็นคุณ ตำรวจเขาก็ทำงานหนักนะ ลูกเราคงยังปลอดภัยอยู่ ผมเชื่อแบบนั้น" },
+      { speaker: "Kana", text: "ฉันก็หวังแบบนั้นล่ะ! แต่คุณไม่คิดจะกังวลใจบ้างเลยหรอ มันนานมากเลยนะที่ยังไม่เจออะไร" },
+      { speaker: "Atsushi", text: "ผมก็กังวลเหมือนคุณนั่นล่ะ แต่เราไม่สามารถทำอะไรได้เลยนะ..." },
+      { speaker: "Kana", text: "ไม่สามารถทำอะไรได้? หรือคุณไม่คิดจะทำ?!" },
+      { speaker: "Atsushi", text: "..." },
+      { speaker: "Kana", text: "คุณนี้น่าผิดหวังจริงๆ" },
+      { speaker: "Atsushi", text: "ผมขอโทษ... งั้นผมจะเป็นคนไปหาเบาะแสเอง" },
+      { speaker: "Kana", text: "คนอย่างคุณจะไปทำอะไรได้ อยากทำอะไรก็เชิญ!" },
+      { speaker: "Atsushi", text: "ขอโทษนะ..." },
+      { speaker: "System", text: "[ จบบทนำ - Atsushi ตัดสินใจก้าวออกจากบ้านเพียงลำพัง ]" }
+    ];
+
+    let currentIndex = 0;
+
+    const speakerNameEl = document.getElementById('speakerName');
+    const dialogueTextEl = document.getElementById('dialogueText');
+    const promptTextEl = document.getElementById('promptText');
+
+    function updateDialogue() {
+      const current = dialogues[currentIndex];
+      
+      // กำหนดสีชื่อตัวละครให้ต่างกันเพื่อความชัดเจน
+      if (current.speaker === "Atsushi") {
+        speakerNameEl.style.color = "#4a90e2"; // สีฟ้า
+        speakerNameEl.innerText = "Atsushi (อัทสึชิ)";
+      } else if (current.speaker === "Kana") {
+        speakerNameEl.style.color = "#ff4444"; // สีแดง
+        speakerNameEl.innerText = "Kana (คานะ)";
+      } else {
+        speakerNameEl.style.color = "#888888"; // สีเทา
+        speakerNameEl.innerText = current.speaker;
+      }
+
+      dialogueTextEl.innerText = current.text;
+
+      if (currentIndex === dialogues.length - 1) {
+        promptTextEl.innerText = "▶ [ END OF DEMO ]";
+      }
+    }
+
+    // เริ่มต้นแสดงผลข้อความแรก
+    updateDialogue();
+
+    // ระบบกดปุ่มอ่านบทถัดไป
+    window.addEventListener('keydown', (e) => {
+      if (e.code === "Space" || e.code === "Enter") {
+        if (currentIndex < dialogues.length - 1) {
+          currentIndex++;
+          updateDialogue();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
