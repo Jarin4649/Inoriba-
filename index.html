@@ -7,67 +7,64 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
-    body {
-      background-color: #050505;
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
       color: #e0e0e0;
       font-family: 'Courier New', Courier, monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
+      overflow: hidden; /* ปิด Scrollbar ไม่ให้เลื่อนขึ้นลงได้ */
     }
 
-    /* หัวข้อเกมด้านบน */
+    /* กรอบหน้าจอเกม ยึดตามขนาดหน้าจอคอมพิวเตอร์พอดี */
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #050508;
+      display: flex;
+      flex-direction: column;
+      justify-direction: space-between;
+      align-items: center;
+      padding: 30px 20px;
+    }
+
+    /* หัวข้อชื่อเกมด้านบน */
     .game-title {
       text-align: center;
-      margin-bottom: 15px;
+      margin-top: 10px;
     }
     .game-title h1 {
       color: #ff3333;
-      font-size: 1.8rem;
-      letter-spacing: 3px;
-      text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+      font-size: 2rem;
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
     }
     .game-title p {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #666;
+      margin-top: 4px;
     }
 
-    /* กรอบหน้าจอเกม (ขนาดมาตรฐาน 960x540 Pixels) */
-    #game-container {
-      position: relative;
-      width: 960px;
-      height: 540px;
-      background: #0a0a0f;
-      border: 2px solid #333;
-      box-shadow: 0 0 25px rgba(255, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
-      padding-bottom: 20px;
-      overflow: hidden;
-    }
-
-    /* กล่องข้อความด้านล่าง พอดีกับสัดส่วนเกม */
+    /* กล่องข้อความสไตล์ Visual Novel (กว้างกำลังสวย 800px วางอยู่กึ่งกลางด้านล่าง) */
     #story-screen {
       position: relative;
-      width: 90%;
-      height: 140px;
-      background: rgba(10, 10, 15, 0.92);
+      width: 100%;
+      max-width: 850px;
+      height: 160px;
+      background: rgba(10, 10, 15, 0.95);
       border: 2px solid #ff3333;
-      border-radius: 4px;
-      padding: 15px 20px;
+      border-radius: 6px;
+      padding: 16px 22px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.25);
+      margin-bottom: 10px;
     }
 
     .speaker-name {
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: bold;
       color: #ff4444;
       border-bottom: 1px solid #333;
@@ -76,8 +73,8 @@
     }
 
     .dialog-text {
-      font-size: 1rem;
-      color: #dddddd;
+      font-size: 1.05rem;
+      color: #eeeeee;
       line-height: 1.5;
       flex-grow: 1;
     }
@@ -87,9 +84,9 @@
       background: transparent;
       border: 1px solid #ff3333;
       color: #ff3333;
-      padding: 4px 14px;
+      padding: 5px 16px;
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -97,10 +94,53 @@
     .next-btn:hover {
       background: #ff3333;
       color: #000;
+      box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
     }
   </style>
 </head>
 <body>
+
+  <div id="game-container">
+    <div class="game-title">
+      <h1>祈り場 (Inoriba)</h1>
+      <p>Hack Club Stardance Project</p>
+    </div>
+
+    <div id="story-screen">
+      <div class="speaker-name" id="speaker">Atsushi</div>
+      <div class="dialog-text" id="text">นี้ก็ 2 สัปดาห์แล้วนะที่ตำรวจยังไม่เจอเบาะแส Riko เลย</div>
+      <button class="next-btn" onclick="nextText()">กดเพื่อไปต่อ ▶</button>
+    </div>
+  </div>
+
+  <script>
+    const dialogs = [
+      { speaker: "Atsushi", text: "นี้ก็ 2 สัปดาห์แล้วนะที่ตำรวจยังไม่เจอเบาะแส Riko เลย" },
+      { speaker: "Kana", text: "ป่านนี้ลูกเราจะเป็นยังไงบ้างก็ไม่รู้... ตำรวจห่วยแตกสิ้นดี เงินภาษีที่เราจ่ายให้กับอะไรเนี่ย!" },
+      { speaker: "Atsushi", text: "ใจเย็นคุณ ตำรวจเขาก็ทำงานหนักนะ ลูกเราคงยังปลอดภัยอยู่ ผมเชื่อแบบนั้น" },
+      { speaker: "Kana", text: "ฉันก็หวังแบบนั้นล่ะ! แต่คุณไม่คิดจะกังวลใจบ้างเลยหรอ มันนานมากเลยนะที่ยังไม่เจออะไร" },
+      { speaker: "Atsushi", text: "ผมก็กังวลเหมือนคุณนั่นล่ะ แต่เราไม่สามารถทำอะไรได้เลยนะ..." },
+      { speaker: "Kana", text: "ไม่สามารถทำอะไรได้? หรือคุณไม่คิดจะทำ?!" },
+      { speaker: "Atsushi", text: "..." },
+      { speaker: "Kana", text: "คุณนี้น่าผิดหวังจริงๆ" },
+      { speaker: "Atsushi", text: "ผมขอโทษ... งั้นผมจะเป็นคนไปหาเบาะแสเอง" },
+      { speaker: "Kana", text: "คนอย่างคุณจะไปทำอะไรได้ อยากทำอะไรก็เชิญ!" },
+      { speaker: "Atsushi", text: "ขอโทษนะ..." },
+      { speaker: "System", text: "[ จบบทนำ - Atsushi ตัดสินใจก้าวออกจากบ้านเพียงลำพัง ]" }
+    ];
+
+    let currentIndex = 0;
+
+    function nextText() {
+      if (currentIndex < dialogs.length - 1) {
+        currentIndex++;
+        document.getElementById("speaker").innerText = dialogs[currentIndex].speaker;
+        document.getElementById("text").innerText = dialogs[currentIndex].text;
+      }
+    }
+  </script>
+</body>
+</html>
 
   <h1>祈り場 (Inoriba)</h1>
   <div class="subtitle">Hack Club Stardance Project</div>
