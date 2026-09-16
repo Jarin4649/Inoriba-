@@ -30,24 +30,13 @@
       padding: 20px;
     
 
-    /* ดึงรูปจากโฟลเดอร์ images */
-      background-image: url('Images/House1.png');
-    /* ตั้งค่าให้ภาพขยายเต็มจอพอดี ไม่ซ้ำ */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  
-  /* กันสโครลบาร์โผล่ */
-  overflow: hidden;
-}
-
-/* จัดวางฝั่งขวา ชิดขอบล่าง */
+   /* จัดวางฝั่งขวา ชิดขอบล่าง และดันให้ชิดขอบจอมากขึ้น */
     #character-container {
       position: absolute;
       bottom: 0;
-      right: -30px; /* ขยับชิดขวาเพิ่มขึ้นอีกนิด (ถ้ายังอยากให้ขวาอีก ปรับเป็น -50px ได้ครับ) */
-      width: 650px; /* เพิ่มความกว้างกล่องเพื่อรองรับขนาดตัวละครที่ใหญ่ขึ้น */
-      height: 85vh; /* ขยายความสูงขึ้นเป็น 85% ของหน้าจอ (ขยายตัวใหญ่ขึ้น) */
+      right: -80px; /* <--- เพิ่มค่าติดลบเพื่อให้ชิดขวามากขึ้น (ถ้าอยากได้ชิดกว่านี้อีก ลองปรับเป็น -120px หรือมากกว่า) */
+      width: 650px; 
+      height: 85vh;
       z-index: 5;
       pointer-events: none;
       display: flex;
@@ -55,21 +44,25 @@
       align-items: flex-end;
     }
 
-    /* ปรับขนาดตัวละคร */
+    /* ปรับค่าตัวละครไม่โปร่งแสง แต่เป็นสีเทาเมื่อไม่ได้พูด */
     .character {
       width: 100%;
       height: 100%;
       object-fit: contain;
       object-position: bottom right;
-      transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+      transition: filter 0.3s ease, transform 0.2s ease; /* เอา opacity ออกจาก transition */
+      
+      /* ทำให้เป็นสีเทา/มืดลง 35% */
       filter: brightness(35%);
-      opacity: 0.5;
+      
+      /* ทำให้ไม่โปร่งแสง (opacity เต็ม 1) */
+      opacity: 1; /* <--- เพิ่มตัวนี้เพื่อให้ความเข้มเต็ม 100% เสมอ */
     }
 
+    /* เมื่อตัวละครพูด */
     .character.active {
       filter: brightness(100%);
-      opacity: 1;
-      transform: scale(1.02);
+      transform: scale(1.03);
     }
     
     /* กล่องข้อความสไตล์ Visual Novel (กว้างกำลังสวย 800px วางอยู่กึ่งกลางด้านล่าง) */
