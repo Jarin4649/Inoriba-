@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inoriba (祈り場) - Prologue</title>
+  <title>Inoriba (祈り場)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
       background-color: #050505;
       color: #e0e0e0;
@@ -17,81 +18,67 @@
       min-height: 100vh;
       padding: 20px;
     }
-    h1 {
-      color: #ff3333;
-      margin-bottom: 5px;
-      letter-spacing: 2px;
-      text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+
+    /* หัวข้อเกมด้านบน */
+    .game-title {
+      text-align: center;
+      margin-bottom: 15px;
     }
-    .subtitle {
-      font-size: 0.85rem;
+    .game-title h1 {
+      color: #ff3333;
+      font-size: 1.8rem;
+      letter-spacing: 3px;
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+    }
+    .game-title p {
+      font-size: 0.8rem;
       color: #666;
-      margin-bottom: 20px;
     }
 
-   /* ตัวจอเกมขยายเต็มหน้าจอเบราว์เซอร์ 100% */
+    /* กรอบหน้าจอเกม (ขนาดมาตรฐาน 960x540 Pixels) */
     #game-container {
       position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: #050508;
+      width: 960px;
+      height: 540px;
+      background: #0a0a0f;
+      border: 2px solid #333;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
-      padding-bottom: 30px;
+      padding-bottom: 20px;
+      overflow: hidden;
     }
 
-    /* หัวข้อชื่อเกมลอยอยู่ด้านบน */
-    .game-title {
-      position: absolute;
-      top: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-    }
-    .game-title h1 {
-      color: #ff3333;
-      font-size: 2.2rem;
-      letter-spacing: 4px;
-      text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-    }
-    .game-title p {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 4px;
-    }
-
-    /* กล่องข้อความสไตล์ Visual Novel ขยายตามขนาดหน้าจอ (กว้าง 85% ของจอ) */
+    /* กล่องข้อความด้านล่าง พอดีกับสัดส่วนเกม */
     #story-screen {
       position: relative;
-      width: 85%;
-      max-width: 1000px;
-      min-height: 160px;
-      background: rgba(8, 8, 12, 0.92);
+      width: 90%;
+      height: 140px;
+      background: rgba(10, 10, 15, 0.92);
       border: 2px solid #ff3333;
-      border-radius: 6px;
-      padding: 20px 25px;
+      border-radius: 4px;
+      padding: 15px 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
     }
 
     .speaker-name {
-      font-size: 1.3rem;
+      font-size: 1.15rem;
       font-weight: bold;
       color: #ff4444;
       border-bottom: 1px solid #333;
-      padding-bottom: 6px;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .dialog-text {
-      font-size: 1.15rem;
-      color: #eeeeee;
-      line-height: 1.6;
+      font-size: 1rem;
+      color: #dddddd;
+      line-height: 1.5;
       flex-grow: 1;
     }
 
@@ -100,18 +87,16 @@
       background: transparent;
       border: 1px solid #ff3333;
       color: #ff3333;
-      padding: 6px 18px;
+      padding: 4px 14px;
       font-family: inherit;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      transition: all 0.2s ease;
-      margin-top: 10px;
+      transition: all 0.2s;
     }
 
     .next-btn:hover {
       background: #ff3333;
       color: #000;
-      box-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
     }
   </style>
 </head>
