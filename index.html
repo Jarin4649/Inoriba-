@@ -176,16 +176,31 @@ let currentIndex = 0;
         document.getElementById("text").innerText = currentDialog.text;
 
         const atsushiImg = document.getElementById("char-atsushi");
+        const kanaImg = document.getElementById("char-kana");
+        const storyScreen = document.getElementById("story-screen");
 
-        // --- ส่วนที่แก้ไขการสลับท่าทาง ---
+        // อัปเดตรูปของ Atsushi (ถ้ามีในข้อความนั้น)
+        if (currentDialog.imageAtsushi) {
+          atsushiImg.src = currentDialog.imageAtsushi;
+        }
+        // อัปเดตรูปของ Kana (ถ้ามีในข้อความนั้น)
+        if (currentDialog.imageKana) {
+          kanaImg.src = currentDialog.imageKana;
+        }
+
+        // สลับสถานะพูด/มืด และติ่งแหลม
         if (currentDialog.speaker === "Atsushi") {
-          atsushiImg.classList.add("active"); // สว่างขึ้น
-          // ใช้รูปท่าพูดตามที่ตั้งไว้ในประโยคนั้นๆ
-          atsushiImg.src = currentDialog.image; 
-        } else {
-          atsushiImg.classList.remove("active"); // มืดลง
-          // ตอนไม่ได้พูด ให้เปลี่ยนเป็นรูปท่าฟังเงียบๆ (ใส่ชื่อไฟล์รูปตอนฟังที่นี่)
-          atsushiImg.src = "Characters/Atsushi Q (1).png"; 
+          atsushiImg.classList.add("active");
+          kanaImg.classList.remove("active");
+
+          storyScreen.classList.remove("speaker-left");
+          storyScreen.classList.add("speaker-right");
+        } else if (currentDialog.speaker === "Kana") {
+          kanaImg.classList.add("active");
+          atsushiImg.classList.remove("active");
+
+          storyScreen.classList.remove("speaker-right");
+          storyScreen.classList.add("speaker-left");
         }
       }
 
