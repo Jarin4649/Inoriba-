@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inoriba</title>
+
+  <!-- โหลดไลบรารี Three.js หลักและปลั๊กอิน -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -14,10 +21,10 @@
       background-color: #050508;
       color: #e0e0e0;
       font-family: 'Anonymous Pro', Courier, monospace;
-      overflow: hidden; /* ปิด Scrollbar ไม่ให้เลื่อนขึ้นลงได้ */
+      overflow: hidden;
     }
 
- /* กรอบหน้าจอเกม ยึดตามขนาดหน้าจอคอมพิวเตอร์พอดี */
+    /* กรอบหน้าจอเกม */
     #game-container {
       position: relative;
       width: 100vw;
@@ -28,15 +35,27 @@
       justify-content: flex-end;
       align-items: center;
       padding: 20px;
-/* ดึงรูปจากโฟลเดอร์ Images */
       background-image: url('Images/House1.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       overflow: hidden;
     }
+
+    /* เอฟเฟกต์เบลอเฉพาะพื้นหลัง */
+    #game-container.dream-bg::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: inherit;
+      background-size: cover;
+      background-position: center;
+      filter: blur(5px) brightness(0.85);
+      transform: scale(1.04);
+      z-index: 1;
+      transition: none !important;
+    }
       
-/* กล่องครอบตัวละคร ยึดติดพื้นล่างแน่น 100% */
     .character-box {
       position: absolute;
       bottom: 0;
@@ -45,21 +64,52 @@
       align-items: flex-end;
       pointer-events: none;
       z-index: 5;
+      transition: opacity 0.15s ease-in-out;
     }
 
-    /* วาง Kana ไว้ฝั่งซ้าย ขยับเข้ามาในจอหน่อย */
     #left-char-box {
       left: 5vw;
       justify-content: flex-start;
     }
 
-    /* วาง Atsushi ไว้ฝั่งขวา ขยับเข้ามาในจอหน่อย */
     #right-char-box {
       right: 5vw;
       justify-content: flex-end;
     }
 
-    /* สัดส่วนตัวละคร 78vh พอดีแน่นกรอบสวยงาม */
+    #center-char-box {
+      left: 50%;
+      transform: translateX(-50%);
+      justify-content: center;
+      width: 100%;
+      z-index: 5;
+    }
+
+    #char-riko {
+      height: 90vh;      
+      max-height: 900px;    
+      object-fit: contain;
+      margin-bottom: -50px;   
+      filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.75)) 
+             drop-shadow(0 0 50px rgba(255, 220, 200, 0.4)) 
+             brightness(1.08) 
+             contrast(0.95);
+      animation: dreamyGlow 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes dreamyGlow {
+      0% {
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)) 
+                drop-shadow(0 0 40px rgba(255, 220, 200, 0.3)) 
+                brightness(1.05);
+      }
+      100% {
+        filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.85)) 
+                drop-shadow(0 0 65px rgba(255, 230, 210, 0.5)) 
+                brightness(1.12);
+      }
+    }
+
     .character {
       height: 78vh;
       max-height: 650px;
@@ -75,9 +125,9 @@
       transform: scale(1.02);
     }
     
-/* กล่องข้อความ */
+    /* กล่องข้อความ */
     #story-screen {
-      position: absolute;
+      position: absolute; 
       bottom: 25px;      
       left: 50%;
       transform: translateX(-50%);
@@ -90,7 +140,7 @@
       padding: 15px 20px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; /* จัดเรียงจากบนลงล่าง */
+      justify-content: flex-start;
       box-shadow: 0 0 20px rgba(255, 0, 0, 0.25);
       z-index: 10;
     }
@@ -111,7 +161,6 @@
       flex-grow: 1;
     }
 
-/* ปรับปุ่ม Next ให้ลอยยึดมุมขวาล่างตลอดเวลา ไม่โดนตัวหนังสือดัน */
     .next-btn {
       position: absolute;
       bottom: 12px;
@@ -126,155 +175,414 @@
       transition: all 0.2s;
     }
 
-.next-btn:hover {
+    .next-btn:hover {
       background: #eeeeee;
       color: #000000;
       box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
     }
     
+    #fade-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    #fade-text {
+      font-size: 1.8rem;
+      color: #ffffff;
+      text-align: center;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      padding: 0 20px;
+    }
+
+    #fade-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #fade-text.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
 
 <div id="game-container">
-    <!-- ฝั่งซ้าย: Kana -->
     <div id="left-char-box" class="character-box">
       <img id="char-kana" class="character" src="Characters/Kana Q.png" alt="Kana">
     </div>
 
-    <!-- ฝั่งขวา: Atsushi -->
     <div id="right-char-box" class="character-box">
       <img id="char-atsushi" class="character active" src="Characters/Atsushi speak.png" alt="Atsushi">
     </div>
 
-    <div id="story-screen" class="speaker-right">
+    <div id="center-char-box" class="character-box" style="opacity: 0;">
+      <img id="char-riko" class="character active" src="Characters/Riko Smile.png" alt="Riko">
+    </div>
+
+    <div id="story-screen">
       <div class="speaker-name" id="speaker">Atsushi</div>
       <div class="dialog-text" id="text">It's been two weeks now, and the police still haven't found any trace of Riko.</div>
       <button class="next-btn" onclick="nextText()">Next ▶</button>
     </div>
-  </div>
+</div>
 
-  <script>
-    const dialogs = [
-      { 
-        speaker: "Atsushi", 
-        text: "It's been two weeks now, and the police still haven't found any trace of Riko.", 
-        imageAtsushi: "Characters/Atsushi speak.png", 
-        imageKana: "Characters/Kana Q.png"
-      },
-      { 
-        speaker: "Kana", 
-        text: "I wonder how our daughter is doing right now... The police are utterly useless. What on earth are our tax money even paying for?", 
-        imageAtsushi: "Characters/Atsushi Q (1).png",
-        imageKana: "Characters/Kana speak.png" 
-      },
-      { 
-        speaker: "Atsushi", 
-        text: "Calm down, honey. The police are doing everything they can. I'm sure our daughter is still safe... I really believe that.", 
-        imageAtsushi: "Characters/Atsushi speak.png", 
-        imageKana: "Characters/Kana Q.png"
-      },
-      { 
-        speaker: "Kana", 
-        text: "I hope you're right. But how can you stay so calm? It's been way too long, and there's still zero progress.", 
-        imageAtsushi: "Characters/Atsushi Q (1).png", 
-        imageKana: "Characters/Kana speak.png" 
-      },
-      { 
-        speaker: "Atsushi", 
-        text: "I'm just as worried as you are... but there's literally nothing we can do.", 
-        imageAtsushi: "Characters/Atsushi speak.png",
-        imageKana: "Characters/Kana Q.png"
-      },
-      { 
-        speaker: "Kana", 
-        text: "Can't do anything? Or are you just refusing to do something about it?", 
-        imageAtsushi: "Characters/Atsushi Q (1).png", 
-        imageKana: "Characters/Kana Angry1.png" 
-      },
-      { 
-        speaker: "Atsushi", 
-        text: "...", 
-        imageAtsushi: "Characters/Atsushi Q (1).png",
-        imageKana: "Characters/Kana Angry1.png"
-      },
-      { 
-        speaker: "Kana", 
-        text: "God, you're so damn pathetic", 
-        imageAtsushi: "Characters/Atsushi Q (1).png", 
-        imageKana: "Characters/Kana Angry1.png" 
-      },
-      { 
-        speaker: "Atsushi", 
-        text: "I'm sorry. Fine... then I'll look for clues myself.", 
-        imageAtsushi: "Characters/Atsushi speak.png",
-        imageKana: "Characters/Kana Angry1.png"
-      },
-      { 
-        speaker: "Kana", 
-        text: "What can someone like you even do? Do whatever you want.", 
-        imageAtsushi: "Characters/Atsushi Q (1).png", 
-        imageKana: "Characters/Kana Angry2.png" 
-      },
-      { 
-        speaker: "Atsushi", 
-        text: "Sorry...", 
-        imageAtsushi: "Characters/Atsushi Sorry.png", 
-        imageKana: "Characters/Kana Angry2.png"
-      },
-    ];
-    
-let currentIndex = 0;
+<div id="fade-overlay">
+  <div id="fade-text"></div>
+</div>
 
-    function nextText() {
-      if (currentIndex < dialogs.length - 1) {
-        currentIndex++;
-        const currentDialog = dialogs[currentIndex];
-        
-        document.getElementById("speaker").innerText = currentDialog.speaker;
-        document.getElementById("text").innerText = currentDialog.text;
+<script>
+  const dialogs = [
+    { 
+      speaker: "Atsushi", 
+      text: "It's been two weeks now, and the police still haven't found any trace of Riko.", 
+      imageAtsushi: "Characters/Atsushi speak.png", 
+      imageKana: "Characters/Kana Q.png",
+      bgImage: "Images/House1.png"
+    },
+    { 
+      speaker: "Kana", 
+      text: "I wonder how our daughter is doing right now... The police are utterly useless. What on earth are our tax money even paying for?", 
+      imageAtsushi: "Characters/Atsushi Q (1).png",
+      imageKana: "Characters/Kana speak.png" 
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "Calm down, honey. The police are doing everything they can. I'm sure our daughter is still safe... I really believe that.", 
+      imageAtsushi: "Characters/Atsushi speak.png", 
+      imageKana: "Characters/Kana Q.png"
+    },
+    { 
+      speaker: "Kana", 
+      text: "I hope you're right. But how can you stay so calm? It's been way too long, and there's still zero progress.", 
+      imageAtsushi: "Characters/Atsushi Q (1).png",
+      imageKana: "Characters/Kana speak.png" 
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "I'm just as worried as you are... but there's literally nothing we can do.", 
+      imageAtsushi: "Characters/Atsushi speak.png",
+      imageKana: "Characters/Kana Q.png"
+    },
+    { 
+      speaker: "Kana", 
+      text: "Can't do anything? Or are you just refusing to do something about it?", 
+      imageAtsushi: "Characters/Atsushi Q (1).png", 
+      imageKana: "Characters/Kana Angry1.png" 
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "...", 
+      imageAtsushi: "Characters/Atsushi Q (1).png",
+      imageKana: "Characters/Kana Angry1.png"
+    },
+    { 
+      speaker: "Kana", 
+      text: "God, you're so damn pathetic", 
+      imageAtsushi: "Characters/Atsushi Q (1).png", 
+      imageKana: "Characters/Kana Angry1.png" 
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "I'm sorry. Fine... then I'll look for clues myself.", 
+      imageAtsushi: "Characters/Atsushi speak.png",
+      imageKana: "Characters/Kana Angry1.png"
+    },
+    { 
+      speaker: "Kana", 
+      text: "What can someone like you even do? Do whatever you want.", 
+      imageAtsushi: "Characters/Atsushi Q (1).png", 
+      imageKana: "Characters/Kana Angry2.png" 
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "Sorry...", 
+      imageAtsushi: "Characters/Atsushi Sorry.png", 
+      imageKana: "Characters/Kana Angry2.png"
+    },
+    { 
+      type: "fade", 
+      text: "One day before Riko disappeared...", 
+      duration: 3500,
+      hideChar: true,               
+    }, 
+    { 
+      speaker: "Atsushi", 
+      text: "That day, Riko left for school as usual. Nothing seemed out of the ordinary.", 
+      bgImage: "Images/Road go to school.jpg",
+      imageRiko: "Characters/Riko Smile.png",
+      isDream: true  
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "In the evening, it looked like she went out to hang around with her friends, but she still came back home right on time.", 
+      bgImage: "Images/Alley evening.jpg", 
+      imageRiko: "Characters/Riko ureshi.png",
+      isDream: true
+    },
+    { 
+      speaker: "Atsushi", 
+      text: "Yet the very next day, Riko completely disappeared... I think I should search her room for any clues.", 
+      bgImage: "Images/Bedroom.jpg",
+      hideChar: true,
+      isDream: true
+    }
+  ];
+  
+  let currentIndex = 0;
+  let isFading = false;
 
-        const atsushiImg = document.getElementById("char-atsushi");
-        const kanaImg = document.getElementById("char-kana");
-        const storyScreen = document.getElementById("story-screen");
+  function preloadImages() {
+    dialogs.forEach(d => {
+      if (d.bgImage) { const img = new Image(); img.src = d.bgImage; }
+      if (d.imageAtsushi) { const img = new Image(); img.src = d.imageAtsushi; }
+      if (d.imageKana) { const img = new Image(); img.src = d.imageKana; }
+      if (d.imageRiko) { const img = new Image(); img.src = d.imageRiko; }
+    });
+  }
+  window.onload = preloadImages;
 
-        // อัปเดตรูปของ Atsushi (ถ้ามีในข้อความนั้น)
-        if (currentDialog.imageAtsushi) {
-          atsushiImg.src = currentDialog.imageAtsushi;
-        }
-        // อัปเดตรูปของ Kana (ถ้ามีในข้อความนั้น)
-        if (currentDialog.imageKana) {
-          kanaImg.src = currentDialog.imageKana;
-        }
+  function nextText() {
+    if (isFading) return;
 
-        // สลับสถานะพูด/มืด และติ่งแหลม
-        if (currentDialog.speaker === "Atsushi") {
-          atsushiImg.classList.add("active");
-          kanaImg.classList.remove("active");
+    if (currentIndex < dialogs.length - 1) {
+      currentIndex++;
+      const currentDialog = dialogs[currentIndex];
+      const fadeOverlay = document.getElementById("fade-overlay");
+      const fadeText = document.getElementById("fade-text");
+      const storyScreen = document.getElementById("story-screen");
 
-          storyScreen.classList.remove("speaker-left");
-          storyScreen.classList.add("speaker-right");
-        } else if (currentDialog.speaker === "Kana") {
-          kanaImg.classList.add("active");
-          atsushiImg.classList.remove("active");
+      const leftBox = document.getElementById("left-char-box");
+      const rightBox = document.getElementById("right-char-box");
+      const centerBox = document.getElementById("center-char-box");
 
-          storyScreen.classList.remove("speaker-right");
-          storyScreen.classList.add("speaker-left");
-        }
+      const atsushiImg = document.getElementById("char-atsushi");
+      const kanaImg = document.getElementById("char-kana");
+      const rikoImg = document.getElementById("char-riko");
+      const gameContainer = document.getElementById("game-container");
+
+      if (currentDialog.type === "fade") {
+        isFading = true;
+        storyScreen.style.display = "none";
+        leftBox.style.opacity = "0";
+        rightBox.style.opacity = "0";
+        centerBox.style.opacity = "0";
+
+        fadeText.innerText = currentDialog.text;
+        fadeOverlay.classList.add("show");
+
+        setTimeout(() => {
+          const nextDialog = dialogs[currentIndex + 1];
+          if (nextDialog) {
+            if (nextDialog.bgImage) {
+              gameContainer.style.backgroundImage = `url('${nextDialog.bgImage}')`;
+            }
+            if (nextDialog.isDream) {
+              gameContainer.classList.add("dream-bg");
+            } else {
+              gameContainer.classList.remove("dream-bg");
+            }
+          }
+        }, 400);
+
+        setTimeout(() => { fadeText.classList.add("show"); }, 450);
+
+        setTimeout(() => {
+          fadeText.classList.remove("show");
+          fadeOverlay.classList.remove("show");
+          
+          setTimeout(() => {
+            isFading = false;
+            storyScreen.style.display = "flex";
+            nextText(); 
+          }, 400);
+
+        }, currentDialog.duration || 2500);
+
+        return;
       }
 
-      if (document.activeElement) {
-        document.activeElement.blur();
+      document.getElementById("speaker").innerText = currentDialog.speaker;
+      document.getElementById("text").innerText = currentDialog.text;
+
+      if (currentDialog.bgImage) {
+        gameContainer.style.backgroundImage = `url('${currentDialog.bgImage}')`;
       }
+
+      if (currentDialog.isDream) {
+        gameContainer.classList.add("dream-bg");
+      } else {
+        gameContainer.classList.remove("dream-bg");
+      }
+
+      if (currentDialog.hideChar) {
+        leftBox.style.opacity = "0";
+        rightBox.style.opacity = "0";
+        centerBox.style.opacity = "0";
+      } else {
+        if (currentDialog.imageAtsushi || currentDialog.imageKana) {
+          leftBox.style.opacity = "1";
+          rightBox.style.opacity = "1";
+          centerBox.style.opacity = "0"; 
+
+          if (currentDialog.imageAtsushi && atsushiImg) atsushiImg.src = currentDialog.imageAtsushi;
+          if (currentDialog.imageKana && kanaImg) kanaImg.src = currentDialog.imageKana;
+
+          if (currentDialog.speaker === "Atsushi") {
+            if (atsushiImg) atsushiImg.classList.add("active");
+            if (kanaImg) kanaImg.classList.remove("active");
+          } else if (currentDialog.speaker === "Kana") {
+            if (kanaImg) kanaImg.classList.add("active");
+            if (atsushiImg) atsushiImg.classList.remove("active");
+          }
+        }
+
+        if (currentDialog.imageRiko) {
+          leftBox.style.opacity = "0";
+          rightBox.style.opacity = "0";
+          centerBox.style.opacity = "1";
+          if (rikoImg) rikoImg.src = currentDialog.imageRiko;
+        }
+      }
+    } else {
+      start3DScene();
     }
 
-    window.addEventListener("keydown", function(event) {
-      if (event.key === "Enter" || event.code === "Space") {
-        event.preventDefault();
-        nextText();
-      }
-    });
-  </script>
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+  }
+
+function start3DScene() {
+      document.getElementById("story-screen").style.display = "none";
+      document.getElementById("left-char-box").style.display = "none";
+      document.getElementById("right-char-box").style.display = "none";
+      document.getElementById("center-char-box").style.display = "none";
+
+      const gameContainer = document.getElementById("game-container");
+      gameContainer.innerHTML = ""; 
+      gameContainer.style.background = "#000";
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      gameContainer.appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+      directionalLight.position.set(10, 20, 15);
+      scene.add(directionalLight);
+
+      // สร้าง PointerLockControls ผูกกับเอกสารทั้งหน้า
+      const controls = new THREE.PointerLockControls(camera, document.body);
+      
+      // คลิกที่หน้าจอที่ไหนก็ได้เพื่อเริ่มล็อกเมาส์และหันมองรอบๆ
+      gameContainer.addEventListener('click', () => {
+        controls.lock();
+      });
+      scene.add(controls.getObject());
+
+      const keys = { w: false, a: false, s: false, d: false };
+      
+      window.addEventListener('keydown', (e) => {
+        switch (e.code) {
+          case 'KeyW': case 'ArrowUp': keys.w = true; break;
+          case 'KeyA': case 'ArrowLeft': keys.a = true; break;
+          case 'KeyS': case 'ArrowDown': keys.s = true; break;
+          case 'KeyD': case 'ArrowRight': keys.d = true; break;
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        switch (e.code) {
+          case 'KeyW': case 'ArrowUp': keys.w = false; break;
+          case 'KeyA': case 'ArrowLeft': keys.a = false; break;
+          case 'KeyS': case 'ArrowDown': keys.s = false; break;
+          case 'KeyD': case 'ArrowRight': keys.d = false; break;
+        }
+      });
+
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        'Rikoroom.glb',
+        function (gltf) {
+          const roomModel = gltf.scene;
+          const box = new THREE.Box3().setFromObject(roomModel);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          
+          roomModel.position.sub(center); 
+          scene.add(roomModel);
+
+          camera.position.set(0, 1.6, 0);
+
+          const padding = 0.6;
+          const minX = -size.x / 2 + padding;
+          const maxX = size.x / 2 - padding;
+          const minZ = -size.z / 2 + padding;
+          const maxZ = size.z / 2 - padding;
+          const speed = 0.08;
+
+          function animate() {
+            requestAnimationFrame(animate);
+
+            const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+            const moveRight = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+
+            if (moveForward !== 0 || moveRight !== 0) {
+              const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
+              cameraDirection.y = 0;
+              cameraDirection.normalize();
+
+              const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
+
+              let newX = camera.position.x + (cameraDirection.x * moveForward + cameraSide.x * moveRight) * speed;
+              let newZ = camera.position.z + (cameraDirection.z * moveForward + cameraSide.z * moveRight) * speed;
+
+              camera.position.x = Math.max(minX, Math.min(maxX, newX));
+              camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
+              camera.position.y = 1.6;
+            }
+
+            renderer.render(scene, camera);
+          }
+          animate();
+        },
+        undefined,
+        function (error) {
+          console.error('An error happened:', error);
+        }
+      );
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+  }
+
+  // ปุ่มลัดกดข้ามบทสนทนา (Spacebar / Enter)
+  window.addEventListener("keydown", function(event) {
+    if ((event.key === "Enter" || event.code === "Space") && document.getElementById("story-screen").style.display !== "none") {
+      event.preventDefault();
+      nextText();
+    }
+  });
+</script>
 </body>
 </html>
-
