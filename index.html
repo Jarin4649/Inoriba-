@@ -36,27 +36,30 @@
       overflow: hidden;
     }
       
-/* --- กรอบจัดวางตัวละครซ้าย-ขวา --- */
-.character-box {
-  position: absolute;
-  bottom: 0;
-  width: 50vw;
-  height: 100vh;
-  z-index: 5;
-  pointer-events: none;
-  display: flex;
-  align-items: flex-end;
+/* ย่อขนาดตัวละครลงมาให้พอดีสายตา */
+.character {
+  height: 68vh; /* ลดจาก 90vh เหลือ 68vh */
+  max-height: 520px;
+  object-fit: contain;
+  transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+  filter: brightness(40%);
+  opacity: 0.6;
 }
 
-/* ฝั่งซ้าย (Kana) */
+.character.active {
+  filter: brightness(100%);
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+/* เว้นระยะตัวละครซ้าย-ขวา ไม่ให้ชิดกึ่งกลางเกินไป */
 #left-char-box {
-  left: 0;
+  left: 2vw;
   justify-content: flex-start;
 }
 
-/* ฝั่งขวา (Atsushi) */
 #right-char-box {
-  right: 0;
+  right: 2vw;
   justify-content: flex-end;
 }
 
