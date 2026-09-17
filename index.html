@@ -36,45 +36,44 @@
       overflow: hidden;
     }
       
-/* ย่อขนาดตัวละครลงมาให้พอดีสายตา */
-.character {
-  height: 68vh; /* ลดจาก 90vh เหลือ 68vh */
-  max-height: 520px;
-  object-fit: contain;
-  transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
-  filter: brightness(40%);
-  opacity: 0.6;
-}
+/* กล่องครอบตัวละคร ยึดติดพื้นล่างแน่น 100% */
+    .character-box {
+      position: absolute;
+      bottom: 0;
+      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      pointer-events: none;
+      z-index: 5;
+    }
 
-.character.active {
-  filter: brightness(100%);
-  opacity: 1;
-  transform: scale(1.02);
-}
+    /* วาง Kana ไว้ฝั่งซ้าย */
+    #left-char-box {
+      left: -2vw;
+      justify-content: flex-start;
+    }
 
-/* เว้นระยะตัวละครซ้าย-ขวา ไม่ให้ชิดกึ่งกลางเกินไป */
-#left-char-box {
-  left: 2vw;
-  justify-content: flex-start;
-}
+    /* วาง Atsushi ไว้ฝั่งขวา */
+    #right-char-box {
+      right: -2vw;
+      justify-content: flex-end;
+    }
 
-#right-char-box {
-  right: 2vw;
-  justify-content: flex-end;
-}
+    /* ตั้งสัดส่วนตัวละคร พอดีสายตา ยืนบนพื้น */
+    .character {
+      height: 65vh;
+      max-height: 520px;
+      object-fit: contain;
+      transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+      filter: brightness(40%);
+      opacity: 0.5;
+    }
 
-.character {
-  height: 90vh;
-  object-fit: contain;
-  transition: filter 0.3s ease, transform 0.2s ease;
-  filter: brightness(40%);
-  opacity: 1;
-}
-
-.character.active {
-  filter: brightness(100%);
-  transform: scale(1.03);
-}
+    .character.active {
+      filter: brightness(100%);
+      opacity: 1;
+      transform: scale(1.03);
+    }
     
     /* กล่องข้อความสไตล์ Visual Novel (กว้างกำลังสวย 800px วางอยู่กึ่งกลางด้านล่าง) */
 #story-screen {
