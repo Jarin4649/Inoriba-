@@ -75,25 +75,25 @@
       transform: scale(1.02);
     }
     
-    /* กล่องข้อความสไตล์ Visual Novel (กว้างกำลังสวย 800px วางอยู่กึ่งกลางด้านล่าง) */
-#story-screen {
-  position: absolute; /* บังคับลอยตำแหน่ง */
-  bottom: 25px;      
-  left: 50%;
-  transform: translateX(-50%); /* จัดให้อยู่กึ่งกลางแนวนอน */
-  width: 75%;
-  max-width: 650px;
-  height: 150px;
-  background: rgba(40, 40, 40, 0.65);
-  border: none;
-  border-radius: 8px;
-  padding: 15px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.25);
-  z-index: 10;
-}
+/* กล่องข้อความ */
+    #story-screen {
+      position: absolute;
+      bottom: 25px;      
+      left: 50%;
+      transform: translateX(-50%);
+      width: 75%;
+      max-width: 650px;
+      height: 150px;
+      background: rgba(40, 40, 40, 0.75);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* จัดเรียงจากบนลงล่าง */
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.25);
+      z-index: 10;
+    }
     
     .speaker-name {
       font-size: 1.2rem;
@@ -111,24 +111,26 @@
       flex-grow: 1;
     }
 
+/* ปรับปุ่ม Next ให้ลอยยึดมุมขวาล่างตลอดเวลา ไม่โดนตัวหนังสือดัน */
     .next-btn {
-      align-self: flex-end;
-      background: transparent;
+      position: absolute;
+      bottom: 12px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.4);
       border: 1px solid #eeeeee;
       color: #eeeeee;
-      padding: 5px 16px;
+      padding: 4px 14px;
       font-family: inherit;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .next-btn:hover {
+.next-btn:hover {
       background: #eeeeee;
       color: #000000;
       box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
-    
-   }
+    }
     
   </style>
 </head>
