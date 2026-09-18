@@ -91,9 +91,9 @@
       object-fit: contain;
       margin-bottom: -50px;   
       filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.75)) 
-             drop-shadow(0 0 50px rgba(255, 220, 200, 0.4)) 
-             brightness(1.08) 
-             contrast(0.95);
+              drop-shadow(0 0 50px rgba(255, 220, 200, 0.4)) 
+              brightness(1.08) 
+              contrast(0.95);
       animation: dreamyGlow 4s ease-in-out infinite alternate;
     }
 
@@ -316,7 +316,7 @@
       type: "fade", 
       text: "One day before Riko disappeared...", 
       duration: 3500,
-      hideChar: true,               
+      hideChar: true,              
     }, 
     { 
       speaker: "Atsushi", 
@@ -341,23 +341,25 @@
     }
   ];
   
-  let currentIndex = 0;
+let currentIndex = 0;
   let isFading = false;
 
   function preloadImages() {
-    dialogs.forEach(d => {
-      if (d.bgImage) { const img = new Image(); img.src = d.bgImage; }
-      if (d.imageAtsushi) { const img = new Image(); img.src = d.imageAtsushi; }
-      if (d.imageKana) { const img = new Image(); img.src = d.imageKana; }
-      if (d.imageRiko) { const img = new Image(); img.src = d.imageRiko; }
-    });
+    if (typeof dialogs !== 'undefined') {
+      dialogs.forEach(d => {
+        if (d.bgImage) { const img = new Image(); img.src = d.bgImage; }
+        if (d.imageAtsushi) { const img = new Image(); img.src = d.imageAtsushi; }
+        if (d.imageKana) { const img = new Image(); img.src = d.imageKana; }
+        if (d.imageRiko) { const img = new Image(); img.src = d.imageRiko; }
+      });
+    }
   }
   window.onload = preloadImages;
 
   function nextText() {
     if (isFading) return;
 
-    if (currentIndex < dialogs.length - 1) {
+    if (typeof dialogs !== 'undefined' && currentIndex < dialogs.length - 1) {
       currentIndex++;
       const currentDialog = dialogs[currentIndex];
       const fadeOverlay = document.getElementById("fade-overlay");
@@ -402,11 +404,11 @@
         setTimeout(() => {
           fadeText.classList.remove("show");
           fadeOverlay.classList.remove("show");
-          
+         
           setTimeout(() => {
             isFading = false;
             storyScreen.style.display = "flex";
-            nextText(); 
+            nextText();
           }, 400);
 
         }, currentDialog.duration || 2500);
@@ -435,7 +437,7 @@
         if (currentDialog.imageAtsushi || currentDialog.imageKana) {
           leftBox.style.opacity = "1";
           rightBox.style.opacity = "1";
-          centerBox.style.opacity = "0"; 
+          centerBox.style.opacity = "0";
 
           if (currentDialog.imageAtsushi && atsushiImg) atsushiImg.src = currentDialog.imageAtsushi;
           if (currentDialog.imageKana && kanaImg) kanaImg.src = currentDialog.imageKana;
@@ -459,13 +461,9 @@
     } else {
       start3DScene();
     }
-
-    if (document.activeElement) {
-      document.activeElement.blur();
-    }
   }
 
-function start3DScene() {
+  function start3DScene() {
       document.getElementById("story-screen").style.display = "none";
       document.getElementById("left-char-box").style.display = "none";
       document.getElementById("right-char-box").style.display = "none";
@@ -476,29 +474,43 @@ function start3DScene() {
       gameContainer.style.background = "#000";
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      scene.background = new THREE.Color(0xffffff);
+      
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
+      
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputEncoding = THREE.sRGBEncoding; // ปรับโทนสีให้สมจริง ไม่มืดหม่น
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; // ปรับแสงให้ละมุนเหมือนโปรแกรม 3D ทั่วไป
+      renderer.toneMappingExposure = 1.2; // ปรับความสว่างรวม (ถ้ายังมืดไปปรับเป็น 1.5 )  
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       gameContainer.appendChild(renderer.domElement);
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
       scene.add(ambientLight);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+      const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+      scene.add(hemisphereLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
       directionalLight.position.set(10, 20, 15);
+      directionalLight.castShadow = true;
       scene.add(directionalLight);
 
-      // สร้าง PointerLockControls ผูกกับเอกสารทั้งหน้า
       const controls = new THREE.PointerLockControls(camera, document.body);
-      
-      // คลิกที่หน้าจอที่ไหนก็ได้เพื่อเริ่มล็อกเมาส์และหันมองรอบๆ
       gameContainer.addEventListener('click', () => {
         controls.lock();
       });
       scene.add(controls.getObject());
 
       const keys = { w: false, a: false, s: false, d: false };
-      
+      const speed = 0.15; 
+      const fixedHeight = 12.92; 
+
+      const spawnX = 10.95;
+      const spawnZ = -13.49;
+
       window.addEventListener('keydown', (e) => {
         switch (e.code) {
           case 'KeyW': case 'ArrowUp': keys.w = true; break;
@@ -518,56 +530,79 @@ function start3DScene() {
       });
 
       const loader = new THREE.GLTFLoader();
+      let minX = -10, maxX = 10, minZ = -10, maxZ = 10;
+
       loader.load(
         'Rikoroom.glb',
         function (gltf) {
           const roomModel = gltf.scene;
-          const box = new THREE.Box3().setFromObject(roomModel);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
-          
-          roomModel.position.sub(center); 
+          roomModel.position.set(0, 0, 0);
+          roomModel.scale.set(1, 1, 1);
+
+roomModel.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            // ลองเช็คชื่อ mesh หรือถ้าเป็นทุกอัน ให้ลองปิด receiveShadow ของชิ้นที่ดำ หรือปรับ roughness/metalness แทน
+            child.receiveShadow = true;
+            
+            // ป้องกันไม่ให้วัสดุมืดเกินไปเมื่อโดนแสงเงาตกกระทบจัดๆ
+            if (child.material) {
+              child.material.roughness = 0.8; // ลดความเงางามลง เพื่อไม่ให้สะท้อนเงาดำ
+              child.material.metalness = 0.1;
+              
+              // ถ้ายังดำอยู่ ให้ลองเปิดใช้งาน clone material แล้วบังคับให้สว่างขึ้นเล็กน้อย
+              child.material.needsUpdate = true;
+            }
+          }
+        });
+
           scene.add(roomModel);
 
-          camera.position.set(0, 1.6, 0);
+          const box = new THREE.Box3().setFromObject(roomModel);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
 
-          const padding = 0.6;
-          const minX = -size.x / 2 + padding;
-          const maxX = size.x / 2 - padding;
-          const minZ = -size.z / 2 + padding;
-          const maxZ = size.z / 2 - padding;
-          const speed = 0.08;
+          const padding = 0.8;
+          minX = center.x - size.x / 2 + padding;
+          maxX = center.x + size.x / 2 - padding;
+          minZ = center.z - size.z / 2 + padding;
+          maxZ = center.z + size.z / 2 - padding;
 
-          function animate() {
-            requestAnimationFrame(animate);
-
-            const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
-            const moveRight = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
-
-            if (moveForward !== 0 || moveRight !== 0) {
-              const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
-              cameraDirection.y = 0;
-              cameraDirection.normalize();
-
-              const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
-
-              let newX = camera.position.x + (cameraDirection.x * moveForward + cameraSide.x * moveRight) * speed;
-              let newZ = camera.position.z + (cameraDirection.z * moveForward + cameraSide.z * moveRight) * speed;
-
-              camera.position.x = Math.max(minX, Math.min(maxX, newX));
-              camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
-              camera.position.y = 1.6;
-            }
-
-            renderer.render(scene, camera);
-          }
-          animate();
+          camera.position.set(spawnX, fixedHeight, spawnZ);
+          camera.lookAt(spawnX - 39, fixedHeight, spawnZ - 0.5);
         },
         undefined,
         function (error) {
           console.error('An error happened:', error);
         }
       );
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+        const moveRight = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+
+        if (moveForward !== 0 || moveRight !== 0) {
+          const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
+          cameraDirection.y = 0;
+          cameraDirection.normalize();
+
+          const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
+
+          let newX = camera.position.x + (cameraDirection.x * moveForward + cameraSide.x * moveRight) * speed;
+          let newZ = camera.position.z + (cameraDirection.z * moveForward + cameraSide.z * moveRight) * speed;
+
+          camera.position.x = Math.max(minX, Math.min(maxX, newX));
+          camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
+        }
+
+        camera.position.y = fixedHeight;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
 
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -576,13 +611,19 @@ function start3DScene() {
       });
   }
 
-  // ปุ่มลัดกดข้ามบทสนทนา (Spacebar / Enter)
   window.addEventListener("keydown", function(event) {
     if ((event.key === "Enter" || event.code === "Space") && document.getElementById("story-screen").style.display !== "none") {
       event.preventDefault();
       nextText();
     }
   });
+
+  window.addEventListener('keydown', function(event) {
+    if (event.code === 'KeyP') {
+        start3DScene();
+    }
+  });
+
 </script>
 </body>
 </html>
