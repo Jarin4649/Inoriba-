@@ -480,9 +480,9 @@
       
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.outputEncoding = THREE.sRGBEncoding; // ปรับโทนสีให้สมจริง ไม่มืดหม่น
-      renderer.toneMapping = THREE.ACESFilmicToneMapping; // ปรับแสงให้ละมุนเหมือนโปรแกรม 3D ทั่วไป
-      renderer.toneMappingExposure = 1.0; // ปรับความสว่างรวม (ถ้ายังมืดไปปรับเป็น 1.5 )  
+      renderer.outputEncoding = THREE.sRGBEncoding; 
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; 
+      renderer.toneMappingExposure = 1.0; 
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       gameContainer.appendChild(renderer.domElement);
@@ -494,15 +494,15 @@
       scene.add(hemisphereLight);
 
       const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8); 
-      directionalLight.position.set(8, 22, 12); // ปรับตำแหน่งมุมแสง
+      directionalLight.position.set(8, 22, 12);
       directionalLight.castShadow = true;
 
-// เพิ่มความละเอียดเงาให้คมชัดขึ้น
+
       directionalLight.shadow.mapSize.width = 2048;
       directionalLight.shadow.mapSize.height = 2048;
       directionalLight.shadow.bias = -0.0005;
 
-      // ขยายขอบเขตการเรนเดอร์เงาให้คลุมทั่วทั้งห้อง (ป้องกันเงาแหว่งหรือหายไปตามมุมห้อง)
+    
       const d = 15;
       directionalLight.shadow.camera.left = -d;
       directionalLight.shadow.camera.right = d;
@@ -557,15 +557,15 @@
 roomModel.traverse((child) => {
           if (child.isMesh) {
             child.castShadow = true;
-            // ลองเช็คชื่อ mesh หรือถ้าเป็นทุกอัน ให้ลองปิด receiveShadow ของชิ้นที่ดำ หรือปรับ roughness/metalness แทน
+            
             child.receiveShadow = true;
             
-            // ป้องกันไม่ให้วัสดุมืดเกินไปเมื่อโดนแสงเงาตกกระทบจัดๆ
+            
             if (child.material) {
-              child.material.roughness = 0.8; // ลดความเงางามลง เพื่อไม่ให้สะท้อนเงาดำ
+              child.material.roughness = 0.8; ำ
               child.material.metalness = 0.1;
               
-              // ถ้ายังดำอยู่ ให้ลองเปิดใช้งาน clone material แล้วบังคับให้สว่างขึ้นเล็กน้อย
+              
               child.material.needsUpdate = true;
             }
           }
@@ -610,10 +610,10 @@ roomModel.traverse((child) => {
         // --------------------------------------------------------
 
 const textureLoader = new THREE.TextureLoader();
-const woodTexture = textureLoader.load('Images/DoorB.jpg'); // ชื่อไฟล์รูปภาพลายไม้ของริน
+const woodTexture = textureLoader.load('Images/DoorB.jpg');
 
 loader.load(
-  'Door1.glb', // หรือชื่อไฟล์ประตูที่แปลงแล้ว
+  'Door1.glb',
   function (doorGltf) {
     const doorModel = doorGltf.scene;
 
@@ -629,8 +629,8 @@ doorModel.traverse((child) => {
         
 console.log("Mesh Name:", child.name);
 
-            // ลองเช็กคร่าวๆ ถ้าชื่อมีคำว่า handle หรือ knob หรือ door (ถ้าไม่ใช่ประตู)
-            if (meshIndex === 1) { // หรือลองเปลี่ยนเป็นเลข 0 ถ้าอันแรกคือมือจับ
+            
+            if (meshIndex === 1) { 
               child.material = new THREE.MeshStandardMaterial({
                 color: 0xE0E0E0, // สีเทาโลหะ
                 metalness: 0.9,
@@ -644,7 +644,7 @@ console.log("Mesh Name:", child.name);
                 color: 0x555555
               });
             }
-            meshIndex++; // เพิ่มค่าตัวนับทีละ 1 สำหรับชิ้นถัดไป
+            meshIndex++;
             child.material.needsUpdate = true;
           }
         });
@@ -689,11 +689,11 @@ function animate() {
           let newX = camera.position.x + moveDir.x * speed;
           let newZ = camera.position.z + moveDir.z * speed;
 
-          // ปรับระยะขอบเขตใหม่ ขยายให้เดินไปข้างหน้าได้สะใจขึ้นแต่ยังอยู่ในห้อง
+          
           const minX = -12;  
           const maxX = 15;   
           const minZ = -15;  
-          const maxZ = 3;   // ล็อกไม่ให้ทะลุออกหลังห้อง
+          const maxZ = 3;  
 
           camera.position.x = Math.max(minX, Math.min(maxX, newX));
           camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
