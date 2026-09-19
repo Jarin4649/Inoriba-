@@ -3,14 +3,11 @@ Unfolds as a young child disappears without a trace. Frustrated by the slow and 
 
 
 ## Features
-
-- **Visual Novel Storyline:** Engaging multi-character dialogue system with dynamic character expressions, emotional shifts, and dreamy fade transitions.
-- **Interactive 3D Environment:** Seamlessly transitions from 2D storytelling into a fully rendered 3D room using `Three.js` and `GLTFLoader`.
-- **First-Person Exploration:** Powered by `PointerLockControls`, allowing players to click and look around freely in first-person view.
-- **Room Boundary Collision:** Custom bounding box constraints that keep the player safely inside the room layout without clipping through walls.
-- **Atmospheric Aesthetic:** Soft, dreamy lighting and custom visual styling tailored for a mystery/suspense atmosphere.
-
-
+- Visaul noval style
+- switch from 2D story to 3D room using three.js + gltfloader
+- first person walking around with w a s d
+- moody lights and custom style for horror vibes ( Under development )
+- custom wall collisions so you don't fall to hell.
 
 ## Built With
 
@@ -18,25 +15,14 @@ Unfolds as a young child disappears without a trace. Frustrated by the slow and 
 - **JavaScript (ES6)** – Game logic, dialogue state management, and event handling.
 - **Three.js (r128)** – 3D rendering engine, lighting, camera controls, and GLTF model loading.
 
+## how to play locally
+Now is under development. You can play with link via. https://papaya-banoffee-aa10ce.netlify.app for the time being.
+- click or enter to progress dialogue.
+- click screen once to lock mouse and rotate view in 3D room.
+- walk inside 3d room using WASD keys.
 
+## credits
+- character illustrations from picrew by まいよめーかー (personal and non-commercial use only)
+- project developed for hack club stardance challenge
 
-## Getting Started & How to Run
-
-To run this project locally on your machine, follow these simple steps:
-
-1. **Clone or Download** this repository to your local computer.
-2. Open the project folder in your code editor (such as **VS Code**).
-3. The easiest way to run it is by using the **Live Server** extension in VS Code:
-   - Right-click on `index.html`.
-   - Select **"Open with Live Server"**.
-4. Enjoy the story and explore the 3D room!
-
-
-## Controls
-
-- **`Spacebar` / `Enter` / `Next Button`** – Progress through the dialogue.
-- **`Left Click`** – Lock mouse cursor to enter the 3D first-person view.
-- **`W`, `A`, `S`, `D` or `Arrow Keys`** – Walk around Riko's room.
-- **`ESC`** – Release the mouse cursor.
-
-Illustration by: まいよめーかー Picrew Link: https://picrew.me/en/image_maker/167775
+Just play it, it's not harder than games you usually play anyway
