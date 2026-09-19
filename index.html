@@ -577,22 +577,98 @@ roomModel.traverse((child) => {
           const size = box.getSize(new THREE.Vector3());
           const center = box.getCenter(new THREE.Vector3());
 
-          const padding = 0.8;
-          minX = center.x - size.x / 2 + padding;
-          maxX = center.x + size.x / 2 - padding;
-          minZ = center.z - size.z / 2 + padding;
-          maxZ = center.z + size.z / 2 - padding;
+          // --- เพิ่มโค้ดสร้างเพดานตรงนี้ ---
+          const ceilingGeometry = new THREE.PlaneGeometry(size.x, size.z);
+          const ceilingMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,          // สีขาวเข้ากับผนังห้อง
+            side: THREE.DoubleSide,   // มองเห็นได้ทั้งสองด้าน
+            roughness: 0.9
+
+          });
+
+          const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+          ceiling.rotation.x = Math.PI / 2; // นอนราบขนานกับพื้น
+          ceiling.position.set(center.x, center.y + size.y / 2, center.z); // วางไว้ที่ขอบบนสุดของห้อง
+          ceiling.receiveShadow = true;     // ให้เพดานรับเงาได้ด้วย
+          scene.add(ceiling);
+          
+          const wallThickness = 30; // ความหนาของผนัง
+          const frontWallGeo = new THREE.PlaneGeometry(size.z, size.y);      
+          const frontWallMat = new THREE.MeshStandardMaterial({
+          color: 0xf5f5f5, // สีขาวเข้ากับห้อง
+          side: THREE.DoubleSide,
+          roughness: 0.9
+        });
+        const frontWall = new THREE.Mesh(frontWallGeo, frontWallMat);
+
+          // วางตำแหน่งชิดขอบด้านข้าง และหมุน 180 องศา (Math.PI)
+          frontWall.position.set(center.x - 6, center.y, center.z - 4);
+          frontWall.rotation.y = Math.PI / 2;
+          frontWall.receiveShadow = true;
+          scene.add(frontWall);
+      
+        // --------------------------------------------------------
+
+const textureLoader = new THREE.TextureLoader();
+const woodTexture = textureLoader.load('Images/DoorB.jpg'); // ชื่อไฟล์รูปภาพลายไม้ของริน
+
+loader.load(
+  'Door1.glb', // หรือชื่อไฟล์ประตูที่แปลงแล้ว
+  function (doorGltf) {
+    const doorModel = doorGltf.scene;
+
+    doorModel.position.set(14.6, -6, -5);
+    doorModel.scale.set(0.09, 0.09, 0.09);
+    doorModel.rotation.y = Math.PI / 2;
+
+    let meshIndex = 0; 
+doorModel.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        
+console.log("Mesh Name:", child.name);
+
+            // ลองเช็กคร่าวๆ ถ้าชื่อมีคำว่า handle หรือ knob หรือ door (ถ้าไม่ใช่ประตู)
+            if (meshIndex === 1) { // หรือลองเปลี่ยนเป็นเลข 0 ถ้าอันแรกคือมือจับ
+              child.material = new THREE.MeshStandardMaterial({
+                color: 0xE0E0E0, // สีเทาโลหะ
+                metalness: 0.9,
+                roughness: 0.2
+              });
+            } else {
+              child.material = new THREE.MeshStandardMaterial({
+                map: woodTexture,
+                roughness: 0.8,
+                metalness: 0.1,
+                color: 0x555555
+              });
+            }
+            meshIndex++; // เพิ่มค่าตัวนับทีละ 1 สำหรับชิ้นถัดไป
+            child.material.needsUpdate = true;
+          }
+        });
+
+    scene.add(doorModel);
+  },
+  undefined,
+  function (error) {
+    console.error('โหลดประตูไม่ผ่าน:', error);
+  }
+);
+
 
           camera.position.set(spawnX, fixedHeight, spawnZ);
           camera.lookAt(spawnX - 39, fixedHeight, spawnZ - 0.5);
         },
+
         undefined,
         function (error) {
           console.error('An error happened:', error);
         }
       );
 
-      function animate() {
+function animate() {
         requestAnimationFrame(animate);
 
         const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
@@ -605,14 +681,23 @@ roomModel.traverse((child) => {
 
           const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
 
-          let newX = camera.position.x + (cameraDirection.x * moveForward + cameraSide.x * moveRight) * speed;
-          let newZ = camera.position.z + (cameraDirection.z * moveForward + cameraSide.z * moveRight) * speed;
+          let moveDir = new THREE.Vector3();
+          moveDir.x = cameraDirection.x * moveForward + cameraSide.x * moveRight;
+          moveDir.z = cameraDirection.z * moveForward + cameraSide.z * moveRight;
+          moveDir.normalize();
+
+          let newX = camera.position.x + moveDir.x * speed;
+          let newZ = camera.position.z + moveDir.z * speed;
+
+          // ปรับระยะขอบเขตใหม่ ขยายให้เดินไปข้างหน้าได้สะใจขึ้นแต่ยังอยู่ในห้อง
+          const minX = -12;  
+          const maxX = 15;   
+          const minZ = -15;  
+          const maxZ = 3;   // ล็อกไม่ให้ทะลุออกหลังห้อง
 
           camera.position.x = Math.max(minX, Math.min(maxX, newX));
           camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
         }
-
-        camera.position.y = fixedHeight;
 
         renderer.render(scene, camera);
       }
@@ -638,7 +723,7 @@ roomModel.traverse((child) => {
         start3DScene();
     }
   });
-
 </script>
 </body>
 </html>
+
