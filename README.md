@@ -18,6 +18,7 @@ Unfolds as a young child disappears without a trace. Frustrated by the slow and 
 ## how to play locally
 Now is under development. You can play with link via. https://papaya-banoffee-aa10ce.netlify.app for the time being.
 - click or enter to progress dialogue.
+- After finished visual novel please "WAIT" 1m. 3D room will show In front you eyes.
 - click screen once to lock mouse and rotate view in 3D room.
 - walk inside 3d room using WASD keys.
 
