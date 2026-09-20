@@ -316,7 +316,7 @@
       type: "fade", 
       text: "One day before Riko disappeared...", 
       duration: 3500,
-      hideChar: true,              
+      hideChar: true,               
     }, 
     { 
       speaker: "Atsushi", 
@@ -459,268 +459,330 @@
         }
       }
     } else {
+      // บทสนทนาหมดแล้ว ค่อยเรียกเข้าฉาก 3D
       start3DScene();
     }
   }
 
   function start3DScene() {
-      document.getElementById("story-screen").style.display = "none";
-      document.getElementById("left-char-box").style.display = "none";
-      document.getElementById("right-char-box").style.display = "none";
-      document.getElementById("center-char-box").style.display = "none";
+    document.getElementById("story-screen").style.display = "none";
+    document.getElementById("left-char-box").style.display = "none";
+    document.getElementById("right-char-box").style.display = "none";
+    document.getElementById("center-char-box").style.display = "none";
 
-      const gameContainer = document.getElementById("game-container");
-      gameContainer.innerHTML = ""; 
-      gameContainer.style.background = "#000";
+    const gameContainer = document.getElementById("game-container");
+    gameContainer.style.backgroundImage = "none";
+    gameContainer.classList.remove("dream-bg");
+    gameContainer.innerHTML = ""; // เคลียร์เฉพาะตอนเข้า 3D เท่านั้น
 
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff);
-      
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
-      
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.outputEncoding = THREE.sRGBEncoding; 
-      renderer.toneMapping = THREE.ACESFilmicToneMapping; 
-      renderer.toneMappingExposure = 1.0; 
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      gameContainer.appendChild(renderer.domElement);
+    const loadingDiv = document.createElement("div");
+    loadingDiv.id = "loading-text";
+    loadingDiv.innerText = "Please wait 1 m. 3D are loading...";
+    loadingDiv.style.position = "absolute";
+    loadingDiv.style.top = "50%";
+    loadingDiv.style.left = "50%";
+    loadingDiv.style.transform = "translate(-50%, -50%)";
+    loadingDiv.style.fontSize = "20px";
+    loadingDiv.style.fontFamily = "sans-serif";
+    loadingDiv.style.color = "#333";
+    loadingDiv.style.zIndex = "999";
+    gameContainer.appendChild(loadingDiv);
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
-      scene.add(ambientLight);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
 
-      const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3);
-      scene.add(hemisphereLight);
-
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8); 
-      directionalLight.position.set(8, 22, 12);
-      directionalLight.castShadow = true;
-
-
-      directionalLight.shadow.mapSize.width = 2048;
-      directionalLight.shadow.mapSize.height = 2048;
-      directionalLight.shadow.bias = -0.0005;
-
+    const fogColor = 0xffffff; // สีของหมอก (ถ้าอยากได้โทนสว่างๆ ใช้สีขาวเหมือนพื้นหลัง)
+    const fogDensity = 0.020;  // ความหนาแน่น (เลขน้อย = บาง, เลขมาก = หนา)
+    scene.fog = new THREE.FogExp2(fogColor, fogDensity);
     
-      const d = 15;
-      directionalLight.shadow.camera.left = -d;
-      directionalLight.shadow.camera.right = d;
-      directionalLight.shadow.camera.top = d;
-      directionalLight.shadow.camera.bottom = -d;
-      directionalLight.shadow.camera.near = 0.5;
-      directionalLight.shadow.camera.far = 50;
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    gameContainer.appendChild(renderer.domElement);
 
-      scene.add(directionalLight);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+    scene.add(ambientLight);
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3);
+    scene.add(hemisphereLight);
 
-      const controls = new THREE.PointerLockControls(camera, document.body);
-      gameContainer.addEventListener('click', () => {
-        controls.lock();
-      });
-      scene.add(controls.getObject());
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8); 
+    directionalLight.position.set(8, 22, 12);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.bias = -0.0005;
 
-      const keys = { w: false, a: false, s: false, d: false };
-      const speed = 0.15; 
-      const fixedHeight = 12.92; 
+    const d = 15;
+    directionalLight.shadow.camera.left = -d;
+    directionalLight.shadow.camera.right = d;
+    directionalLight.shadow.camera.top = d;
+    directionalLight.shadow.camera.bottom = -d;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 50;
+    scene.add(directionalLight);
 
-      const spawnX = 10.95;
-      const spawnZ = -13.49;
+    const controls = new THREE.PointerLockControls(camera, document.body);
+    gameContainer.addEventListener('click', () => { controls.lock(); });
+    scene.add(controls.getObject());
 
-      window.addEventListener('keydown', (e) => {
-        switch (e.code) {
-          case 'KeyW': case 'ArrowUp': keys.w = true; break;
-          case 'KeyA': case 'ArrowLeft': keys.a = true; break;
-          case 'KeyS': case 'ArrowDown': keys.s = true; break;
-          case 'KeyD': case 'ArrowRight': keys.d = true; break;
-        }
-      });
+    const keys = { w: false, a: false, s: false, d: false };
+    const speed = 0.15; 
+    const fixedHeight = 12.92; 
+    const spawnX = 10.95;
+    const spawnZ = -13.49;
 
-      window.addEventListener('keyup', (e) => {
-        switch (e.code) {
-          case 'KeyW': case 'ArrowUp': keys.w = false; break;
-          case 'KeyA': case 'ArrowLeft': keys.a = false; break;
-          case 'KeyS': case 'ArrowDown': keys.s = false; break;
-          case 'KeyD': case 'ArrowRight': keys.d = false; break;
-        }
-      });
+    const obstacleBoxes = [];
 
-      const loader = new THREE.GLTFLoader();
-      let minX = -10, maxX = 10, minZ = -10, maxZ = 10;
+    window.addEventListener('keydown', (e) => {
+      switch (e.code) {
+        case 'KeyW': case 'ArrowUp': keys.w = true; break;
+        case 'KeyA': case 'ArrowLeft': keys.a = true; break;
+        case 'KeyS': case 'ArrowDown': keys.s = true; break;
+        case 'KeyD': case 'ArrowRight': keys.d = true; break;
+      }
+    });
 
-      loader.load(
-        'Rikoroom.glb',
-        function (gltf) {
-          const roomModel = gltf.scene;
-          roomModel.position.set(0, 0, 0);
-          roomModel.scale.set(1, 1, 1);
+    window.addEventListener('keyup', (e) => {
+      switch (e.code) {
+        case 'KeyW': case 'ArrowUp': keys.w = false; break;
+        case 'KeyA': case 'ArrowLeft': keys.a = false; break;
+        case 'KeyS': case 'ArrowDown': keys.s = false; break;
+        case 'KeyD': case 'ArrowRight': keys.d = false; break;
+      }
+    });
 
-roomModel.traverse((child) => {
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+      'Rikoroom.glb',
+      function (gltf) {
+        const roomModel = gltf.scene;
+        roomModel.position.set(0, 0, 0);
+        roomModel.scale.set(1, 1, 1);
+        scene.add(roomModel);
+        roomModel.updateMatrixWorld(true);
+
+  const floorTextureLoader = new THREE.TextureLoader();
+  const floorTexture = floorTextureLoader.load('Images/DoorB.jpg'); 
+       
+        floorTexture.wrapS = THREE.RepeatWrapping;
+        floorTexture.wrapT = THREE.RepeatWrapping;
+        floorTexture.repeat.set(10, 10); 
+
+        const customFloorGeo = new THREE.PlaneGeometry(200, 200);
+        const customFloorMat = new THREE.MeshStandardMaterial({ 
+          map: floorTexture, 
+          color: 0x9c7853,    
+          roughness: 0.65,    
+          metalness: 0.05
+        });
+        
+        const customFloor = new THREE.Mesh(customFloorGeo, customFloorMat);
+        customFloor.rotation.x = -Math.PI / 2; 
+        customFloor.position.set(0, -6.1, -10); 
+        customFloor.receiveShadow = true;
+        scene.add(customFloor);
+
+        const bedBoundingBox = new THREE.Box3();
+        let foundBed = false;
+
+        roomModel.traverse((child) => {
           if (child.isMesh) {
             child.castShadow = true;
-            
             child.receiveShadow = true;
-            
-            
+
             if (child.material) {
-              child.material.roughness = 0.8; ำ
+              child.material.roughness = 0.8;
               child.material.metalness = 0.1;
-              
-              
               child.material.needsUpdate = true;
             }
-          }
-        });
 
-          scene.add(roomModel);
+            const nameLower = child.name.toLowerCase();
 
-          const box = new THREE.Box3().setFromObject(roomModel);
-          const size = box.getSize(new THREE.Vector3());
-          const center = box.getCenter(new THREE.Vector3());
-
-          // --- เพิ่มโค้ดสร้างเพดานตรงนี้ ---
-          const ceilingGeometry = new THREE.PlaneGeometry(size.x, size.z);
-          const ceilingMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,          // สีขาวเข้ากับผนังห้อง
-            side: THREE.DoubleSide,   // มองเห็นได้ทั้งสองด้าน
-            roughness: 0.9
-
-          });
-
-          const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
-          ceiling.rotation.x = Math.PI / 2; // นอนราบขนานกับพื้น
-          ceiling.position.set(center.x, center.y + size.y / 2, center.z); // วางไว้ที่ขอบบนสุดของห้อง
-          ceiling.receiveShadow = true;     // ให้เพดานรับเงาได้ด้วย
-          scene.add(ceiling);
-          
-          const wallThickness = 30; // ความหนาของผนัง
-          const frontWallGeo = new THREE.PlaneGeometry(size.z, size.y);      
-          const frontWallMat = new THREE.MeshStandardMaterial({
-          color: 0xf5f5f5, // สีขาวเข้ากับห้อง
-          side: THREE.DoubleSide,
-          roughness: 0.9
-        });
-        const frontWall = new THREE.Mesh(frontWallGeo, frontWallMat);
-
-          // วางตำแหน่งชิดขอบด้านข้าง และหมุน 180 องศา (Math.PI)
-          frontWall.position.set(center.x - 6, center.y, center.z - 4);
-          frontWall.rotation.y = Math.PI / 2;
-          frontWall.receiveShadow = true;
-          scene.add(frontWall);
-      
-        // --------------------------------------------------------
-
-const textureLoader = new THREE.TextureLoader();
-const woodTexture = textureLoader.load('Images/DoorB.jpg');
-
-loader.load(
-  'Door1.glb',
-  function (doorGltf) {
-    const doorModel = doorGltf.scene;
-
-    doorModel.position.set(14.6, -6, -5);
-    doorModel.scale.set(0.09, 0.09, 0.09);
-    doorModel.rotation.y = Math.PI / 2;
-
-    let meshIndex = 0; 
-doorModel.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        
-console.log("Mesh Name:", child.name);
-
-            
-            if (meshIndex === 1) { 
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0xE0E0E0, // สีเทาโลหะ
-                metalness: 0.9,
-                roughness: 0.2
-              });
-            } else {
-              child.material = new THREE.MeshStandardMaterial({
-                map: woodTexture,
-                roughness: 0.8,
-                metalness: 0.1,
-                color: 0x555555
-              });
+            // 1. เช็กชิ้นส่วนเตียง
+            if (nameLower.includes('bed') || nameLower.includes('mattress')) {
+              const childBox = new THREE.Box3().setFromObject(child);
+              bedBoundingBox.union(childBox);
+              foundBed = true;
             }
-            meshIndex++;
-            child.material.needsUpdate = true;
+
+            // 2. เช็กเฟอร์นิเจอร์อื่นๆ สำหรับทำระบบกันชน
+            const isFloorOrWall = nameLower.includes('floor') || nameLower.includes('wall') || (nameLower.includes('plane') && !nameLower.includes('chair') && !nameLower.includes('bed') && !nameLower.includes('mattress'));
+
+            if (!isFloorOrWall && !nameLower.includes('bed') && !nameLower.includes('mattress')) {
+              const box = new THREE.Box3().setFromObject(child);
+              const size = box.getSize(new THREE.Vector3());
+              if (size.x > 0.3 || size.y > 0.3 || size.z > 0.3) {
+                obstacleBoxes.push(box);
+              }
+            }
           }
         });
 
-    scene.add(doorModel);
-  },
-  undefined,
-  function (error) {
-    console.error('โหลดประตูไม่ผ่าน:', error);
-  }
-);
-
-
-          camera.position.set(spawnX, fixedHeight, spawnZ);
-          camera.lookAt(spawnX - 39, fixedHeight, spawnZ - 0.5);
-        },
-
-        undefined,
-        function (error) {
-          console.error('An error happened:', error);
+        if (foundBed) {
+          obstacleBoxes.push(bedBoundingBox);
+          const bedHelper = new THREE.Box3Helper(bedBoundingBox, 0xff0000);
+          bedHelper.visible = false; 
+          scene.add(bedHelper);
         }
+
+        const box = new THREE.Box3().setFromObject(roomModel);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        
+        const ceilingGeometry = new THREE.PlaneGeometry(size.x, size.z);
+        const ceilingMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide, roughness: 0.9 });
+        const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+        ceiling.rotation.x = Math.PI / 2;
+        ceiling.position.set(center.x, center.y + size.y / 2, center.z);
+        ceiling.receiveShadow = true;
+        scene.add(ceiling);
+        
+        const frontWallGeo = new THREE.PlaneGeometry(size.z, size.y);      
+        const frontWallMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, side: THREE.DoubleSide, roughness: 0.9 });
+        const frontWall = new THREE.Mesh(frontWallGeo, frontWallMat);
+        frontWall.position.set(center.x - 6, center.y, center.z - 4);
+        frontWall.rotation.y = Math.PI / 2;
+        frontWall.receiveShadow = true;
+        scene.add(frontWall);
+
+        const loaderElem = document.getElementById("loading-text");
+        if (loaderElem) loaderElem.remove();
+
+        const textureLoader = new THREE.TextureLoader();
+        const woodTexture = textureLoader.load('Images/DoorB.jpg'); 
+        
+        loader.load(
+          'Door1.glb',
+          function (doorGltf) {
+            const doorModel = doorGltf.scene;
+            doorModel.position.set(14.6, -6, -5);
+            doorModel.scale.set(0.09, 0.09, 0.09);
+            doorModel.rotation.y = Math.PI / 2;
+            let meshIndex = 0;
+            doorModel.traverse((child) => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if (meshIndex === 1) {
+                  child.material = new THREE.MeshStandardMaterial({
+                    color: 0xE0E0E0,
+                    metalness: 0.9,
+                    roughness: 0.2
+                  });
+                } else {
+                  child.material = new THREE.MeshStandardMaterial({
+                    map: woodTexture,
+                    roughness: 0.8,
+                    metalness: 0.1,
+                    color: 0x555555
+                  });
+                }
+                meshIndex++;
+                child.material.needsUpdate = true;
+              }
+            });
+            scene.add(doorModel);
+          },
+          undefined,
+          function (error) { console.error('An error happened:', error); }
+        );
+
+        camera.position.set(spawnX, fixedHeight, spawnZ);
+        camera.lookAt(spawnX - 39, fixedHeight, spawnZ - 0.5);
+      },
+      undefined,
+      function (error) { console.error('An error happened:', error); }
+    );
+
+    const playerRadius = 0.6; 
+
+    function checkObstacleCollision(targetX, targetZ) {
+      const playerBox = new THREE.Box3(
+        new THREE.Vector3(targetX - playerRadius, -999, targetZ - playerRadius),
+        new THREE.Vector3(targetX + playerRadius, 999, targetZ + playerRadius)
       );
 
-function animate() {
-        requestAnimationFrame(animate);
+      for (let i = 0; i < obstacleBoxes.length; i++) {
+        if (playerBox.intersectsBox(obstacleBoxes[i])) {
+          return true; 
+        }
+      }
+      return false; 
+    }
 
-        const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
-        const moveRight = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+    function animate() {
+      requestAnimationFrame(animate);
 
-        if (moveForward !== 0 || moveRight !== 0) {
-          const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
-          cameraDirection.y = 0;
-          cameraDirection.normalize();
+      const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+      const moveRight = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
 
-          const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
+      if (moveForward !== 0 || moveRight !== 0) {
+        const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
+        cameraDirection.y = 0;
+        cameraDirection.normalize();
 
-          let moveDir = new THREE.Vector3();
-          moveDir.x = cameraDirection.x * moveForward + cameraSide.x * moveRight;
-          moveDir.z = cameraDirection.z * moveForward + cameraSide.z * moveRight;
-          moveDir.normalize();
+        const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
 
-          let newX = camera.position.x + moveDir.x * speed;
-          let newZ = camera.position.z + moveDir.z * speed;
+        let moveDir = new THREE.Vector3();
+        moveDir.x = cameraDirection.x * moveForward + cameraSide.x * moveRight;
+        moveDir.z = cameraDirection.z * moveForward + cameraSide.z * moveRight;
+        moveDir.normalize();
 
-          
-          const minX = -12;  
-          const maxX = 15;   
-          const minZ = -15;  
-          const maxZ = 3;  
+        let newX = camera.position.x + moveDir.x * speed;
+        let newZ = camera.position.z + moveDir.z * speed;
 
-          camera.position.x = Math.max(minX, Math.min(maxX, newX));
-          camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
+        const minX = -28;  
+        const maxX = 18;   
+        const minZ = -35;  
+        const maxZ = 3;   
+
+        const nextPosX = Math.max(minX, Math.min(maxX, newX));
+        if (!checkObstacleCollision(nextPosX, camera.position.z)) {
+          camera.position.x = nextPosX;
         }
 
-        renderer.render(scene, camera);
+        const nextPosZ = Math.max(minZ, Math.min(maxZ, newZ));
+        if (!checkObstacleCollision(camera.position.x, nextPosZ)) {
+          camera.position.z = nextPosZ;
+        }
       }
 
-      animate();
+      renderer.render(scene, camera);
+    }
 
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   }
 
+  // กดปุ่ม Enter หรือ Space เพื่อรันบทสนทนา Visual Novel
   window.addEventListener("keydown", function(event) {
-    if ((event.key === "Enter" || event.code === "Space") && document.getElementById("story-screen").style.display !== "none") {
-      event.preventDefault();
-      nextText();
+    if (event.key === "Enter" || event.code === "Space") {
+      const storyScreen = document.getElementById("story-screen");
+      if (storyScreen && storyScreen.style.display !== "none") {
+        event.preventDefault();
+        if (typeof nextText === "function") {
+          nextText();
+        }
+      }
     }
   });
 
+  // กดปุ่ม P เพื่อข้ามเข้าสู่ฉาก 3D ทันที (ถ้าต้องการทดสอบ)
   window.addEventListener('keydown', function(event) {
     if (event.code === 'KeyP') {
+      if (typeof start3DScene === "function") {
         start3DScene();
+      }
     }
   });
 </script>
