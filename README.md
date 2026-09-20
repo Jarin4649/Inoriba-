@@ -16,7 +16,7 @@ Unfolds as a young child disappears without a trace. Frustrated by the slow and 
 - **Three.js (r128)** – 3D rendering engine, lighting, camera controls, and GLTF model loading.
 
 ## how to play locally
-Now is under development. You can play with link via. https://papaya-banoffee-aa10ce.netlify.app for the time being.
+Now is under development. You can play with link via.(https://fastidious-taiyaki-1a0567.netlify.app) for the time being.
 - click or enter to progress dialogue.
 - After finished visual novel please "WAIT" 1m. 3D room will show In front you eyes.
 - click screen once to lock mouse and rotate view in 3D room.
